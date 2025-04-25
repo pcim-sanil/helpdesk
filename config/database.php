@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -30,17 +30,6 @@ return [
     */
 
     'connections' => [
-
-        'sqlite' => [
-            'driver' => 'sqlite',
-            'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
-            'prefix' => '',
-            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => null,
-            'journal_mode' => null,
-            'synchronous' => null,
-        ],
 
         'mysql' => [
             'driver' => 'mysql',
@@ -60,6 +49,37 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+        ],
+
+        'helpdesk' => [
+            'driver' => 'mysql',
+            'url' => env('DB_HELPDESK_URL'),
+            'host' => env('DB_HELPDESK_HOST', '127.0.0.1'),
+            'port' => env('DB_HELPDESK_PORT', '3326'),
+            'database' => env('DB_HELPDESK_DATABASE', '1300'),
+            'username' => env('DB_HELPDESK_USERNAME', ''),
+            'password' => env('DB_HELPDESK_PASSWORD', ''),
+            'unix_socket' => env('DB_HELPDESK_SOCKET', ''),
+            'charset' => env('DB_HELPDESK_CHARSET', 'utf8'),
+            'collation' => env('DB_HELPDESK_COLLATION', 'utf8_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'sqlite' => [
+            'driver' => 'sqlite',
+            'url' => env('DB_URL'),
+            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+            'busy_timeout' => null,
+            'journal_mode' => null,
+            'synchronous' => null,
         ],
 
         'mariadb' => [
