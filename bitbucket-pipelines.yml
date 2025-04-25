@@ -22,15 +22,18 @@ pipelines:
           - npm run build
           # Copy environment example and update for SQLite
           - cp .env.example .env
-          # Change DB_CONNECTION to sqlite and set DB_DATABASE to the database file location
+          # Change DB_CONNECTION to sqlite and set DB_DATABASE to the absolute path of the database file
+          - DB_PATH=$(pwd)/database/database.sqlite
           - sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
-          - sed -i 's|DB_DATABASE=.*|DB_DATABASE=database/database.sqlite|' .env
+          - sed -i "s|DB_DATABASE=.*|DB_DATABASE=$DB_PATH|" .env
           # Create the SQLite database file if it doesn't exist
-          - touch database/database.sqlite
+          - touch $DB_PATH
+          - pwd
           # Generate the Laravel application key
           - php artisan key:generate
           # Run database migrations (use --force for non-interactive environments)
           - php artisan migrate --force
+          - php artisan db:seed --force
           # Execute PHPUnit tests by explicitly invoking PHP
           - php artisan test
         artifacts:
