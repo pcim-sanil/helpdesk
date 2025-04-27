@@ -26,10 +26,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['status'] = User::STATUS_INACTIVE;
 
         event(new Registered(($user = User::create($validated))));
 
-        Auth::login($user);
+        if ($user->status === User::STATUS_ACTIVE) {
+            Auth::login($user);
+        }
 
         $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
     }
