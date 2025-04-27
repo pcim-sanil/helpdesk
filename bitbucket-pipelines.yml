@@ -6,9 +6,10 @@ pipelines:
         name: Install, Migrate & Test (SQLite)
         caches:
           - composer
+          - node
         script:
           # Update package manager and install required dependencies (including SQLite)
-          - apt-get update && apt-get install -y unzip git libzip-dev libpng-dev libonig-dev libxml2-dev zip sqlite3 libsqlite3-dev
+          - apt-get update && apt-get install -y unzip git libzip-dev libpng-dev libonig-dev libxml2-dev zip sqlite3 libsqlite3-dev nodejs npm
           # Install PHP extensions required for Laravel with SQLite support
           - docker-php-ext-install pdo pdo_sqlite zip
           # Install Composer globally
@@ -16,6 +17,9 @@ pipelines:
           - mv composer.phar /usr/local/bin/composer
           # Install Laravel dependencies
           - composer install --prefer-dist --no-interaction
+          # Install NPM dependencies and build assets
+          - npm install
+          - npm run build
           # Copy environment example and update for SQLite
           - cp .env.example .env
           # Change DB_CONNECTION to sqlite and set DB_DATABASE to the database file location
@@ -27,7 +31,8 @@ pipelines:
           - php artisan key:generate
           # Run database migrations (use --force for non-interactive environments)
           - php artisan migrate --force
+          - php artisan db:seed --force
           # Execute PHPUnit tests by explicitly invoking PHP
-          - php vendor/bin/phpunit
+          - php artisan test
         artifacts:
           - storage/logs/**
