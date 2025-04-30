@@ -2,9 +2,10 @@
 
 use App\Jobs\TestLogJob;
 use Illuminate\Support\Facades\Schedule;
+use App\Console\Commands\Helpdesk\AutoProcessEmailCommand;
 
-Schedule::command('helpdesk:auto-process-email')
-        ->everyFiveMinutes()
+Schedule::command(AutoProcessEmailCommand::class)
+        ->everyMinute()
         ->withoutOverlapping()
         ->onOneServer();
 
