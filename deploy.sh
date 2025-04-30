@@ -68,7 +68,7 @@ fi
 # -----------------------------------------------------------------------------
 echo "→ Restarting queue workers ($SUPERVISOR_PROCESSES)…"
 #sudo supervisorctl restart "$SUPERVISOR_PROCESSES"
-sudo pm2 reload ecosystem.config.js --only laravel-queue
+sudo pm2 reload ecosystem.config.cjs --only laravel-queue
 sudo pm2 save
 
 
