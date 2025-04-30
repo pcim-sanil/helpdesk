@@ -60,7 +60,7 @@ php artisan view:cache
 if [ -f package.json ]; then
   echo "→ Building front-end assets…"
   npm ci
-  npm run production
+  npm run build
 fi
 
 # -----------------------------------------------------------------------------
