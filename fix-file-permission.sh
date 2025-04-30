@@ -9,12 +9,12 @@ IFS=$'\n\t'
 #   sudo ./fix-permissions.sh /path/to/your/project [owner] [group]
 #
 # Defaults:
-#   owner  → nginx
+#   owner  → ssharma
 #   group  → nginx
 # -----------------------------------------------------------------------------
 
 PROJECT_ROOT="${1:-$(pwd)}"
-OWNER="${2:-nginx}"
+OWNER="${2:-ssharma}"
 GROUP="${3:-nginx}"
 
 echo "🔧 Fixing permissions under: $PROJECT_ROOT"
