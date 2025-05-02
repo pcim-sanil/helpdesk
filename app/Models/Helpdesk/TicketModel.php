@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class TicketModel extends Model
 {
+
+    public const TICKET_STATUS_OPEN = 0;
+    public const TICKET_STATUS_CLOSED = 1;
+    public const TICKET_STATUS_ESCLATE = 2;
+    public const TICKET_STATUS_PENDING = 3;
+    public const TICKET_STATUS_ESCLATE_TO_VENDOR = 4;
+
     // Define the connection
     protected $connection = 'helpdesk';
 

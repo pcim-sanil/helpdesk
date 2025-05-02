@@ -17,9 +17,9 @@
                 </flux:navlist.group>
 
                 <flux:navlist.group expandable heading="Tickets" class="hidden lg:grid">
-                    <flux:navlist.item icon="lock-open"  wire:navigate>Open</flux:navlist.item>
-                    <flux:navlist.item icon="lock-closed"  wire:navigate>Closed</flux:navlist.item>
-                    <flux:navlist.item icon="wallet" :href="route('tickets.data-grid')" :current="request()->routeIs('tickets.data-grid')" wire:navigate>All</flux:navlist.item>
+                    <flux:navlist.item icon="lock-open"  :href="route('tickets.open')" :current="request()->routeIs('tickets.open')" wire:navigate>Open</flux:navlist.item>
+                    <flux:navlist.item icon="lock-closed"  :href="route('tickets.closed')" :current="request()->routeIs('tickets.closed')" wire:navigate>Closed</flux:navlist.item>
+                    <flux:navlist.item icon="wallet" :href="route('tickets.all')" :current="request()->routeIs('tickets.all')" wire:navigate>All</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
