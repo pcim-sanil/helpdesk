@@ -5,14 +5,29 @@ namespace App\Services;
 class TicketService
 {
     /**
-     * Get the label for the enquiry type
+     * Get the status options
      *
-     * @param int $enqueryType
-     * @return string
+     * @return array
      */
-    public static function getEnquiryTypeLabel(int $enqueryType): string
+    public static function getStatusOptions(): array
     {
-        $enquiryTypeLabels = [
+        return [
+            '0' => 'Open',
+            '1' => 'Closed',
+            '2' => 'Escalated',
+            '3' => 'Pending',
+            '4' => 'Escalated to Vendor',
+        ];
+    }
+  
+    /**
+     * Get the enquiry type options
+     *
+     * @return array
+     */
+    public static function getEnquiryTypeOptions(): array
+    {
+        return [
             '0' => 'Unsub 19 SMS',
             '1' => 'Unsub 04 Marketing',
             '2' => 'Incoming Call',
@@ -23,6 +38,17 @@ class TicketService
             '7' => 'Refund Email',
             '8' => 'Email Ticket',
         ];
+    }
+
+    /**
+     * Get the label for the enquiry type
+     *
+     * @param int $enqueryType
+     * @return string
+     */
+    public static function getEnquiryTypeLabel(int $enqueryType): string
+    {
+        $enquiryTypeLabels = self::getEnquiryTypeOptions();
 
         return $enquiryTypeLabels[$enqueryType] ?? 'Unknown';
     }

@@ -2,7 +2,7 @@
 $ sudo crontab -u nginx -e
 
 
-* * * * * cd /var/www/html/helpdesk && /usr/bin/php artisan schedule:run /var/www/html/helpdesk/storage/logs/scheduler.log 2>&1
+* * * * * cd /var/www/html/helpdesk && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 
 
 # Restart cron
