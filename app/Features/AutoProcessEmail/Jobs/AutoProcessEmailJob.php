@@ -24,6 +24,7 @@ use App\Models\Helpdesk\QueryEmailModel;
 use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Models\Helpdesk\TicketModel;
 use App\Features\AutoProcessEmail\AutoProcessException;
+use App\Features\QueryEmail\QueryEmailService;
 
 abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 {
@@ -113,7 +114,13 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
         return '';
     }
 
-    private function processEmail(QueryEmailModel $outgoingEmailQuery): bool
+    /**
+     * Send an email.
+     *
+     * @param QueryEmailModel $outgoingEmailQuery
+     * @return bool
+     */
+    private function sendEmail(QueryEmailModel $outgoingEmailQuery): bool
     {
         $config = [];
         $config['username'] = $this->autoProcessableEmailData->query_email;
@@ -122,8 +129,8 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
         $mailer = new PHPMailerService($config);
 
         $result = $mailer->send(
-            to: $outgoingEmailQuery->receiver_email,
-            cc: $outgoingEmailQuery->cc,
+            to: explode(',', $outgoingEmailQuery->receiver_email),
+            cc: explode(',', $outgoingEmailQuery->cc),
             subject: $outgoingEmailQuery->email_subject,
             content: $outgoingEmailQuery->email_content,
         );
@@ -137,7 +144,12 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
         return $result;
     }
 
-
+    /**
+     * Get a suitable mobile number to update in ticket
+     *
+     * @param AutoProcessedEmailData $autoProcessedEmailData
+     * @return string|null
+     */
     private function getSuitableMobileNumber(AutoProcessedEmailData $autoProcessedEmailData): ?string
     {
         $unsubscribedMobileNumbers = $autoProcessedEmailData->getUnsubscribedMobileNumbers();
@@ -151,6 +163,12 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
         return null;
     }
 
+    /**
+     * Close a ticket.
+     *
+     * @param AutoProcessedEmailData $autoProcessedEmailData
+     * @return bool
+     */
     private function closeTicket(AutoProcessedEmailData $autoProcessedEmailData): bool
     {
         $ticket = TicketModel::query()->find($this->autoProcessableEmailData->generated_ticket_id);
@@ -160,7 +178,7 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
 
         if (strpos($ticket->caller_info_mobile, '.') !== false) {
-           // $ticket->caller_info_mobile = $this->getSuitableMobileNumber($autoProcessedEmailData);
+            // $ticket->caller_info_mobile = $this->getSuitableMobileNumber($autoProcessedEmailData);
             // $ticket->caller_info_mobile_8 = substr($ticket->caller_info_mobile, -8);
         }
 
@@ -198,37 +216,44 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
     {
         $outgoingEmailQuery = new QueryEmailModel();
         $outgoingEmailQuery->sender_email = $this->autoProcessableEmailData->receiver_email;
-        $outgoingEmailQuery->receiver_email = $this->autoProcessableEmailData->sender_email;
-        $outgoingEmailQuery->cc = self::CC_EMAIL;
+        $outgoingEmailQuery->cc = self::CC_EMAIL; // you may pass comma separated emails
 
         if ($autoProcessedEmailData->response_type == AutoProcessResponseTypeEnum::CASE_FORWARDED) {
+            $outgoingEmailQuery->receiver_email = implode(',', $this->autoProcessableEmailData->forward_to);
             $outgoingEmailQuery->email_subject = 'FYI :' . $this->autoProcessableEmailData->email_subject;
+
+            // fetch the email chain by incoming email query ID
+            $emailQueryChain = QueryEmailService::getEmailChainByIncomingEmailQueryId($this->autoProcessableEmailData->query_email_id);
+
+            $outgoingEmailQuery->email_content = View::make('mail.en.case-forwarded', [
+                'emailQueryChain' => $emailQueryChain,
+            ])->render();
         } else {
+            $outgoingEmailQuery->receiver_email = $this->autoProcessableEmailData->sender_email;
             $outgoingEmailQuery->email_subject = 'Re:' . $this->autoProcessableEmailData->email_subject;
-        }
 
-        /**
-         * Build the email content.
-         */
-        if (empty($autoProcessedEmailData->response_template_path) || !View::exists($autoProcessedEmailData->response_template_path)) {
-            throw new AutoProcessException('Invalid response template path', [
-                'response_template_path_errors' => 'Invalid response template path: ' . $autoProcessedEmailData->response_template_path,
-            ]);
-        }
+            /**
+             * Build the email content.
+             */
+            if (empty($autoProcessedEmailData->response_template_path) || !View::exists($autoProcessedEmailData->response_template_path)) {
+                throw new AutoProcessException('Invalid response template path', [
+                    'response_template_path_errors' => 'Invalid response template path: ' . $autoProcessedEmailData->response_template_path,
+                ]);
+            }
 
-        $content = View::make($autoProcessedEmailData->response_template_path, [
-            'BRAND_NAME' => $this->autoProcessableEmailData->brand_name,
-            'MOBILE_NUMBER' => !empty($autoProcessedEmailData->getUnsubscribedMobileNumbers())
-                ? implode(',', $autoProcessedEmailData->getUnsubscribedMobileNumbers())
-                : 'MSISDN',
-            'SENDER_EMAIL_PREVIEW' => $this->getSenderEmailPreview(),
-        ])->render();
-        $outgoingEmailQuery->email_content = $content;
+            $content = View::make($autoProcessedEmailData->response_template_path, [
+                'BRAND_NAME' => $this->autoProcessableEmailData->brand_name,
+                'MOBILE_NUMBER' => !empty($autoProcessedEmailData->getUnsubscribedMobileNumbers())
+                    ? implode(',', $autoProcessedEmailData->getUnsubscribedMobileNumbers())
+                    : 'MSISDN',
+                'SENDER_EMAIL_PREVIEW' => $this->getSenderEmailPreview(),
+            ])->render();
+            $outgoingEmailQuery->email_content = $content;
+        }
 
         $outgoingEmailQuery->generated_ticket_id = $this->autoProcessableEmailData->generated_ticket_id;
         $outgoingEmailQuery->type = QueryEmailModel::TYPE_EMAIL_QUERY_OUTGOING;
         $outgoingEmailQuery->status = QueryEmailModel::STATUS_EMAIL_QUERY_REPLY_EMAIL_SENT;
-        $outgoingEmailQuery->email_received_date = $this->autoProcessableEmailData->email_received_date;
         $outgoingEmailQuery->created_date = date('Y-m-d H:i:s');
 
         if ($outgoingEmailQuery->save()) {
@@ -275,11 +300,11 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
                     $autoProcessedEmail->update();
 
                     // Process the email
-                    $emailSent = $this->processEmail($outgoingEmailQuery);
+                    $emailSent = $this->sendEmail($outgoingEmailQuery);
                     $autoProcessedEmail->reply_email_sent = $emailSent;
                     $autoProcessedEmail->update();
 
-                    // clonse the ticket if email sent successfully
+                    // close the ticket if email sent successfully
                     $this->closeTicket($autoProcessedEmailData);
 
                     $autoProcessedEmail->process_log = $autoProcessedEmailData->getProcessLog();
@@ -289,8 +314,12 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
                     $autoProcessedEmail->update();
 
                     throw $e;
-                }
+                } catch (Throwable $throwable) {
+                    $autoProcessedEmailData->setProcessLog('post_auto_process_email_errors', $throwable->getMessage());
+                    $autoProcessedEmail->update();
 
+                    throw $throwable;
+                }
             }
         } catch (Throwable $throwable) {
             Log::channel('email_processing')->error('Auto process email job failed', [
@@ -301,6 +330,12 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
         }
     }
 
+    /**
+     * Process the email.
+     *
+     * @param array $mobileNumbers
+     * @return AutoProcessedEmailData
+     */
     abstract public function process(array $mobileNumbers): AutoProcessedEmailData;
 
     /**
@@ -315,6 +350,17 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
     }
 
     /**
+     * Check if the email was auto processed.
+     *
+     * @return bool
+     */
+    protected function wasAutoProcessed(): bool
+    {
+        $wasAutoProcessed = $this->autoProcessableEmailData->no_of_auto_processed ?? 0;
+        return $wasAutoProcessed > 0;
+    }
+
+    /**
      * Execute the job.
      *
      * @return void
@@ -324,7 +370,7 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
         try {
             Log::channel('email_processing')->info('Starting auto process email job', [
                 'email_id' => $this->autoProcessableEmailData->id,
-            ]);
+            ]);           
 
             // scan the email content for mobile numbers
             $emailContent = $this->autoProcessableEmailData->email_subject . ' ' . $this->autoProcessableEmailData->email_content;

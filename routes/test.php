@@ -7,16 +7,14 @@ use App\Services\MobileService;
 use App\Services\LanguageDectorService;
 use App\Features\AutoProcessEmail\Jobs\CzFunnerzJob;
 use App\Models\Helpdesk\TicketModel;
+use App\Features\QueryEmail\QueryEmailService;
+use Illuminate\Support\Facades\View;
+
 Route::get('/test', [TicketController::class, 'index']);
 
+
+
 Route::get('/c0', function () {
-
-        $ticket = TicketModel::query()->find(3027966);
-
-
-        dd($ticket->toArray());
-        exit;
-
         // run job
         $autoProcessEmailService = new AuroProcessEmailService();
         $emails = $autoProcessEmailService->getEmailsToBeProcessed();
@@ -26,9 +24,7 @@ Route::get('/c0', function () {
 
         if($emails->count() > 0) {
             $autoProcessableEmailData = $emails->first();
-            $job = new CzFunnerzJob($autoProcessableEmailData);
-
-            $job->handle(new MobileService());
+            CzFunnerzJob::dispatch($autoProcessableEmailData);
         } else {
             dd('No emails to process');
         }

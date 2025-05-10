@@ -9,24 +9,6 @@ use Illuminate\Support\Collection;
 class AuroProcessEmailService
 {
     /**
-     * Get the sms services that can be auto processed on helpdesk
-     *
-     * @return array
-     */
-    public function getAutoProcessableSmsServicesWithJobs(): array
-    {
-        $sql = "SELECT
-                    sms_services_id, job_class
-                from
-                    auto_process_email_services
-                where
-                    auto_process_on_helpdesk = 1 and job_class is not null";
-
-        return DB::connection('helpdesk')->select($sql);
-    }
-
-
-    /**
      * Get the emails that can be auto processed
      *
      * @param array $smsServicesIds

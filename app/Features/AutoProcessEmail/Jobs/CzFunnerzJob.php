@@ -14,6 +14,11 @@ class CzFunnerzJob extends AutoProcessEmailJob
     private const TOKEN = '67890';
 
 
+    /**
+     * Get allowed languages.
+     *
+     * @return array
+     */
     public function getAllowedLanguages(): array
     {
         return [
@@ -64,10 +69,19 @@ class CzFunnerzJob extends AutoProcessEmailJob
         return $response->json();
     }
 
+
+    /**
+     * Get the email template.
+     *
+     * @param AutoProcessResponseTypeEnum $responseType
+     * @param string $language
+     * @return string
+     */
     public function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
     {
         switch ($responseType) {
             case AutoProcessResponseTypeEnum::MOBILE_NUMBER_NOT_FOUND:
+                // czech and croatian languages are similar so AI may detect it as czech or croatian so let's use the same template for both
                 if (in_array($language, [LanguageDectorService::CZECH_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
                     return 'mail.cs.mobile-number-not-found';
                 }
@@ -89,9 +103,22 @@ class CzFunnerzJob extends AutoProcessEmailJob
         }
     }
 
+    /**
+     * Process the email.
+     *
+     * @param array $mobileNumbers
+     * @return AutoProcessedEmailData
+     */
     public function process(array $mobileNumbers): AutoProcessedEmailData
     {
         $autoProcessedEmailData = AutoProcessedEmailData::fromAutoProcessableEmailData($this->autoProcessableEmailData);
+
+        if ($this->wasAutoProcessed()) {
+            $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::CASE_FORWARDED);
+            $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::CASE_FORWARDED, LanguageDectorService::ENGLISH_LANGUAGE));
+
+            return $autoProcessedEmailData;
+        }
 
         /**
          * Detect language.
@@ -162,6 +189,8 @@ class CzFunnerzJob extends AutoProcessEmailJob
         if (!empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::CASE_FORWARDED);
             $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::CASE_FORWARDED, $language));
+
+            $autoProcessedEmailData->setProcessLog('api_error', 'Failed to unsubscribe from any subscription');
 
             return $autoProcessedEmailData;
         }
