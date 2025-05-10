@@ -1,28 +1,73 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\TicketController;
+use App\Features\AutoProcessEmail\AuroProcessEmailService;
+use App\Services\MobileService;
+use App\Services\LanguageDectorService;
+use App\Features\AutoProcessEmail\Jobs\CzFunnerzJob;
 use App\Models\Helpdesk\TicketModel;
-use App\Models\Helpdesk\CompanyInfoModel;
-use App\Models\Helpdesk\SmsServiceShortCodeModel;
-Route::get('/test', function () {
+Route::get('/test', [TicketController::class, 'index']);
+
+Route::get('/c0', function () {
+
+        $ticket = TicketModel::query()->find(3027966);
 
 
+        dd($ticket->toArray());
+        exit;
 
-    $smsService = SmsServiceShortCodeModel::find(129);
+        // run job
+        $autoProcessEmailService = new AuroProcessEmailService();
+        $emails = $autoProcessEmailService->getEmailsToBeProcessed();
+  
+  
+        $autoProcessableEmailData = $emails->first();
 
-    dump($smsService->companyInfo->toArray());
+        if($emails->count() > 0) {
+            $autoProcessableEmailData = $emails->first();
+            $job = new CzFunnerzJob($autoProcessableEmailData);
 
-    exit;
-    $companyInfo = CompanyInfoModel::find(231);
+            $job->handle(new MobileService());
+        } else {
+            dd('No emails to process');
+        }
+});
 
-    dump(count($companyInfo->tickets->toArray()));
+
+Route::get('/c1', function () {
+      $autoProcessEmailService = new AuroProcessEmailService();
+      $emails = $autoProcessEmailService->getEmailsToBeProcessed();
 
 
-    exit;
-    $ticket = TicketModel::find(3025170);
+      $autoProcessableEmailData = $emails->first();
 
-    dump($ticket->companyInfo?->toArray());
+      $mobileService = new MobileService();
 
-    exit;
+      $emailContent = $autoProcessableEmailData->email_subject.' '.$autoProcessableEmailData->email_content;
+
+      dump($emailContent);
+
+      $mobileNumbers = $mobileService->extractMobiles($emailContent, $autoProcessableEmailData->country_iso_alpha2);
+
+      // detect language
+
+      dump($mobileNumbers);
+
+      $emailContent = "Vážený zákazníku,
+
+děkujeme, že jste se na nás obrátili.
+
+Abychom vám mohli pomoci přesněji, mohli byste uvést číslo svého mobilního telefonu spolu se stručným popisem problému, se kterým se setkáváte?
+
+Těšíme se, že to za vás co nejrychleji vyřešíme.
+
+S pozdravem,";
+      $languageDetector = new LanguageDectorService(); //cs,hr,no
+
+      $language = $languageDetector->detectLanguage($emailContent, $autoProcessableEmailData->detect_languages);
+
+      dd($language);
+
+      dd($mobileNumbers);
 });
