@@ -22,6 +22,8 @@ Route::get('/c0', function () {
   
         $autoProcessableEmailData = $emails->first();
 
+        dd($autoProcessableEmailData);
+
         if($emails->count() > 0) {
             $autoProcessableEmailData = $emails->first();
             CzFunnerzJob::dispatch($autoProcessableEmailData);

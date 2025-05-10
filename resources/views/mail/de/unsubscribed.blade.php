@@ -19,7 +19,7 @@
                                 Vielen Dank für Ihre Kontaktaufnahme.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                Wir bestätigen, dass Ihr Abonnement bei <strong>{{BRAND_NAME}}</strong> mit der Mobilfunknummer <strong>{{MOBILE_NUMBER}}</strong> erfolgreich gekündigt wurde.
+                                Wir bestätigen, dass Ihr Abonnement bei <strong>{{ $BRAND_NAME ?? ''}}</strong> mit der Mobilfunknummer <strong>{{ $MOBILE_NUMBER ?? ''}}</strong> erfolgreich gekündigt wurde.
                             </p>
                             <p style="color: #555; font-size: 16px;">
                                 Bei weiteren Fragen oder wenn Sie Hilfe benötigen, wenden Sie sich bitte an uns.

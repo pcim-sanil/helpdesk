@@ -361,6 +361,44 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
     }
 
     /**
+     * Get the email template.
+     *
+     * @param AutoProcessResponseTypeEnum $responseType
+     * @param string $language
+     * @return string
+     */
+    protected function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
+    {
+        switch ($responseType) {
+            case AutoProcessResponseTypeEnum::MOBILE_NUMBER_NOT_FOUND:
+                return 'mail.en.mobile-number-not-found';
+            case AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND:
+                return 'mail.en.subscription-not-found';
+            case AutoProcessResponseTypeEnum::UNSUBSCRIBED:
+                return 'mail.en.unsubscribed';
+            case AutoProcessResponseTypeEnum::CASE_FORWARDED:
+                return 'mail.en.case-forwarded';
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Prepare the auto processed email data for forwarding.
+     *
+     * @param AutoProcessedEmailData $autoProcessedEmailData
+     * @return AutoProcessedEmailData
+     */
+    protected function prepareAutoProcessedEmailDataForForwarding(AutoProcessedEmailData $autoProcessedEmailData): AutoProcessedEmailData
+    {
+        $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::CASE_FORWARDED);
+        $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::CASE_FORWARDED, LanguageDectorService::ENGLISH_LANGUAGE));
+
+        return $autoProcessedEmailData;
+    }
+
+
+    /**
      * Execute the job.
      *
      * @return void
@@ -370,7 +408,7 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
         try {
             Log::channel('email_processing')->info('Starting auto process email job', [
                 'email_id' => $this->autoProcessableEmailData->id,
-            ]);           
+            ]);
 
             // scan the email content for mobile numbers
             $emailContent = $this->autoProcessableEmailData->email_subject . ' ' . $this->autoProcessableEmailData->email_content;

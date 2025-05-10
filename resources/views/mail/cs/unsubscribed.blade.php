@@ -19,7 +19,7 @@
                                 děkujeme, že jste nás kontaktovali.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                Potvrzujeme, že vaše předplatné služby <strong>{{BRAND_NAME}}</strong> propojené s mobilním číslem <strong>{{MOBILE_NUMBER}}</strong> bylo úspěšně zrušeno.
+                                Potvrzujeme, že vaše předplatné služby <strong>{{ $BRAND_NAME ?? ''}}</strong> propojené s mobilním číslem <strong>{{ $MOBILE_NUMBER ?? ''}}</strong> bylo úspěšně zrušeno.
                             </p>
                             <p style="color: #555; font-size: 16px;">
                                 Pokud máte další otázky nebo potřebujete pomoc, neváhejte se na nás obrátit.

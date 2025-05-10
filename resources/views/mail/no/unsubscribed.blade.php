@@ -19,7 +19,7 @@
                                 Takk for at du kontakter oss.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                Vi bekrefter at abonnementet ditt med <strong>{{BRAND_NAME}}</strong> knyttet til mobilnummeret <strong>{{MOBILE_NUMBER}}</strong> har blitt kansellert.
+                                Vi bekrefter at abonnementet ditt med <strong>{{ $BRAND_NAME ?? ''}}</strong> knyttet til mobilnummeret <strong>{{ $MOBILE_NUMBER ?? ''}}</strong> har blitt kansellert.
                             </p>
                             <p style="color: #555; font-size: 16px;">
                                 Hvis du har flere spørsmål eller trenger hjelp, ikke nøl med å ta kontakt.

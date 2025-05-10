@@ -19,7 +19,7 @@
                                 Merci de nous avoir contactés.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                Nous confirmons que votre abonnement à <strong>{{BRAND_NAME}}</strong> lié au numéro de mobile <strong>{{MOBILE_NUMBER}}</strong> a bien été résilié.
+                                Nous confirmons que votre abonnement à <strong>{{ $BRAND_NAME ?? ''}}</strong> lié au numéro de mobile <strong>{{ $MOBILE_NUMBER ?? ''}}</strong> a bien été résilié.
                             </p>
                             <p style="color: #555; font-size: 16px;">
                                 Pour toute question ou assistance, n'hésitez pas à nous contacter.
