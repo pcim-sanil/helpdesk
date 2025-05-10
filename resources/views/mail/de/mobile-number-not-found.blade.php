@@ -34,5 +34,9 @@
             </td>
         </tr>
     </table>
+
+    <div style="font-family: Arial, sans-serif; color: #333; font-size: 14px; line-height: 1.4; padding:30px;">
+        {!! $SENDER_EMAIL_PREVIEW ?? '' !!}
+    </div>
 </body>
 </html>
