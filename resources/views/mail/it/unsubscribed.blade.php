@@ -19,7 +19,7 @@
                                 Grazie per averci contattato.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                Confermiamo che il tuo abbonamento con <strong>{{BRAND_NAME}}</strong> associato al numero di cellulare <strong>{{MOBILE_NUMBER}}</strong> è stato annullato correttamente.
+                                Confermiamo che il tuo abbonamento con <strong>{{ $BRAND_NAME ?? ''}}</strong> associato al numero di cellulare <strong>{{ $MOBILE_NUMBER ?? ''}}</strong> è stato annullato correttamente.
                             </p>
                             <p style="color: #555; font-size: 16px;">
                                 Per ulteriori domande o assistenza, non esitare a contattarci.

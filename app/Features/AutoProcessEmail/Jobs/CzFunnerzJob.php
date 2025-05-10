@@ -77,7 +77,7 @@ class CzFunnerzJob extends AutoProcessEmailJob
      * @param string $language
      * @return string
      */
-    public function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
+    protected function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
     {
         switch ($responseType) {
             case AutoProcessResponseTypeEnum::MOBILE_NUMBER_NOT_FOUND:
@@ -133,6 +133,12 @@ class CzFunnerzJob extends AutoProcessEmailJob
          * No mobile numbers, send reply
          */
         if (empty($mobileNumbers)) {
+
+            // Mobile number not found, prepare auto processed email data for forwarding.
+            if ($this->wasAutoProcessed()) {
+                return $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
+            }
+
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::MOBILE_NUMBER_NOT_FOUND);
             $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::MOBILE_NUMBER_NOT_FOUND, $language));
 
@@ -161,6 +167,12 @@ class CzFunnerzJob extends AutoProcessEmailJob
          */
         $mobileNumbersWithActiveSubscription = $autoProcessedEmailData->getMobileNumbersWithActiveSubscription();
         if (empty($mobileNumbersWithActiveSubscription)) {
+
+            // No active subscription, prepare auto processed email data for forwarding.
+            if ($this->wasAutoProcessed()) {
+                return $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
+            }
+
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND);
             $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND, $language));
 
@@ -187,12 +199,10 @@ class CzFunnerzJob extends AutoProcessEmailJob
          * Failed to unsubscribe from any subscription.
          */
         if (!empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
-            $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::CASE_FORWARDED);
-            $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::CASE_FORWARDED, $language));
 
             $autoProcessedEmailData->setProcessLog('api_error', 'Failed to unsubscribe from any subscription');
 
-            return $autoProcessedEmailData;
+            return $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
         }
 
         /**
@@ -206,7 +216,7 @@ class CzFunnerzJob extends AutoProcessEmailJob
         }
 
         $autoProcessedEmailData->setProcessLog('no_action_taken', true);
-
-        return $autoProcessedEmailData;
+        
+        return $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
     }
 }

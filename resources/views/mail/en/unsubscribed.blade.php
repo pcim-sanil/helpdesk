@@ -16,7 +16,7 @@
                                 Thank you for contacting us.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                We confirm that your subscription with <strong>{{BRAND_NAME}}</strong> linked to the mobile number <strong>{{MOBILE_NUMBER}}</strong> has been successfully cancelled.
+                                We confirm that your subscription with <strong>{{ $BRAND_NAME ?? ''}}</strong> linked to the mobile number <strong>{{ $MOBILE_NUMBER ?? ''}}</strong> has been successfully cancelled.
                             </p>
                             <p style="color: #555; font-size: 16px;">
                                 If you have any further questions or need assistance, please don't hesitate to reach out.

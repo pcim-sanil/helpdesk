@@ -19,7 +19,7 @@
                                 Hvala vam što ste nas kontaktirali.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                Potvrđujemo da je vaša pretplata sa <strong>{{BRAND_NAME}}</strong> povezanom sa brojem mobilnog telefona <strong>{{MOBILE_NUMBER}}</strong> uspešno otkazana.
+                                Potvrđujemo da je vaša pretplata sa <strong>{{ $BRAND_NAME ?? ''}}</strong> povezanom sa brojem mobilnog telefona <strong>{{ $MOBILE_NUMBER ?? ''}}</strong> uspešno otkazana.
                             </p>
                             <p style="color: #555; font-size: 16px;">
                                 Ako imate dodatnih pitanja ili vam je potrebna pomoć, ne oklevajte da se obratite.
