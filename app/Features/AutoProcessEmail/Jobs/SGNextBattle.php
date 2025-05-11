@@ -30,20 +30,32 @@ class SGNextBattle extends AutoProcessEmailJob
      */
     public function getSubscriptions(string $mobileNumber): array
     {
-        $response = Http::timeout($this->timeout)
-            ->retry($this->tries, 100)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-            ->post('https://portal.telcosupport.com/phpinfo.php', [
-                'token' => 'nakuit',
-                'endpoint' => self::BASE_URI . "/sg1/lookup?msisdn=" . $this->normalize($mobileNumber),
-                'method' => 'POST',
-            ])
-            ->throw();
+        try{
+            $response = Http::timeout($this->timeout)
+                ->retry($this->tries, 100)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->post('https://portal.telcosupport.com/phpinfo.php', [
+                    'token' => 'nakuit',
+                    'endpoint' => self::BASE_URI . "/sg1/lookup?msisdn=" . $this->normalize($mobileNumber),
+                    'method' => 'POST',
+                ])
+                ->throw();
 
-        return $response->json();
+            return $response->json();
+        } catch(RequestException $e) {
+            $status = $e->response->status();
+            $body = $e->response->json();
 
+            if ($status === 400) {
+                return $body;
+            }
+
+            throw $e;
+        }
+
+        /*
         $response = Http::timeout($this->timeout)
             ->retry($this->tries, 100)
             ->withOptions([
@@ -55,6 +67,7 @@ class SGNextBattle extends AutoProcessEmailJob
             ->throw();
 
         return $response->json();
+        */
     }
 
     /**
@@ -63,9 +76,10 @@ class SGNextBattle extends AutoProcessEmailJob
      */
     public function unsubscribe(string $mobileNumber): array
     {
-        $response = Http::timeout($this->timeout)
-            ->retry($this->tries, 100)
-            ->withHeaders([
+        try{
+            $response = Http::timeout($this->timeout)
+                ->retry($this->tries, 100)
+                ->withHeaders([
                 'Content-Type' => 'application/json',
             ])
             ->post('https://portal.telcosupport.com/phpinfo.php', [
@@ -75,8 +89,19 @@ class SGNextBattle extends AutoProcessEmailJob
             ])
             ->throw();
 
-        return $response->json();
+            return $response->json();
+        } catch(RequestException $e) {
+            $status = $e->response->status();
+            $body = $e->response->json();
 
+            if ($status === 400) {
+                return $body;
+            }
+
+            throw $e;
+        }
+
+        /*
         $response = Http::timeout($this->timeout)
             ->retry($this->tries, 100)
             ->withOptions([
@@ -88,6 +113,7 @@ class SGNextBattle extends AutoProcessEmailJob
             ->throw();
 
         return $response->json();
+        */
     }
 
     /**
@@ -122,16 +148,7 @@ class SGNextBattle extends AutoProcessEmailJob
          * Fetch subscriptions for each mobile number.
          */
         foreach ($mobileNumbers as $mobileNumber) {
-
-            try {
-                $subscription = $this->getSubscriptions($mobileNumber);
-            } catch(RequestException $e) {
-                if ($e->response->status() === 400) {
-                    continue;
-                }
-                throw $e;
-            }
-
+            $subscription = $this->getSubscriptions($mobileNumber);
             $status = $subscription['status'] ?? '';
             $unsubscribedAt = $subscription['unsubscribedAt'] ?? '';
 
