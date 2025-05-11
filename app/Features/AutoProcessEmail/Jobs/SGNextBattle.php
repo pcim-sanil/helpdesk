@@ -40,8 +40,7 @@ class SGNextBattle extends AutoProcessEmailJob
                 'token' => 'nakuit',
                 'endpoint' => self::BASE_URI . "/sg1/lookup?msisdn=" . $this->normalize($mobileNumber),
                 'method' => 'POST',
-            ])
-            ->throw();
+            ]);
 
         return $response->json();
 
@@ -73,8 +72,7 @@ class SGNextBattle extends AutoProcessEmailJob
                 'token' => 'nakuit',
                 'endpoint' => self::BASE_URI . "/sg1/unsubscribe?msisdn=" . $this->normalize($mobileNumber),
                 'method' => 'POST',
-            ])
-            ->throw();
+            ]);
 
         return $response->json();
 
