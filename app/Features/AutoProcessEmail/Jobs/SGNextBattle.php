@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Http;
 class SGNextBattle extends AutoProcessEmailJob
 {
     private const BASE_URI = 'https://oddesseysms.nl';
-    
     /**
      * Get allowed languages.
      *
@@ -42,7 +41,11 @@ class SGNextBattle extends AutoProcessEmailJob
                 'method' => 'POST',
             ]);
 
-        return $response->json();
+        if ($response->successful()) {
+            return $response->json();
+        } else {
+            return ['status' => 'not found'];
+        }
 
         $response = Http::timeout($this->timeout)
             ->retry($this->tries, 100)
@@ -72,7 +75,8 @@ class SGNextBattle extends AutoProcessEmailJob
                 'token' => 'nakuit',
                 'endpoint' => self::BASE_URI . "/sg1/unsubscribe?msisdn=" . $this->normalize($mobileNumber),
                 'method' => 'POST',
-            ]);
+            ])
+            ->throw();
 
         return $response->json();
 
