@@ -8,12 +8,10 @@ use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
 use Illuminate\Support\Facades\Http;
 
-class CzFunnerzJob extends AutoProcessEmailJob
+class SGNextBattle extends AutoProcessEmailJob
 {
-    private const BASE_URI = 'http://cl1.oddesseybizz.nl/gogogy/CZ2';
-    private const TOKEN = '67890';
-
-
+    private const BASE_URI = 'https://oddesseysms.nl';
+    
     /**
      * Get allowed languages.
      *
@@ -22,14 +20,12 @@ class CzFunnerzJob extends AutoProcessEmailJob
     public function getAllowedLanguages(): array
     {
         return [
-            LanguageDectorService::CZECH_LANGUAGE,
-            LanguageDectorService::CROATIAN_LANGUAGE,
             LanguageDectorService::ENGLISH_LANGUAGE
         ];
     }
 
     /**
-     * POST http://cl1.oddesseybizz.nl/gogogy/CZ2/customercare_lookup.php?msisdn=00xxxx&token=67890
+     * POST https://oddesseysms.nl/ch9/lookup?msisdn=00xxxx
      * Sample response:{"active":true,"msisdn":"00420722109300","activated":"1745201345","stopped":"","operator":"23002","opt-out":"unsubscribe"},
      * Sample response:{"active":false,"msisdn":"00420736166731","activated":"1745202969","stopped":"1746429802","operator":"23003","opt-out":"unsubscribe"}}
      */
@@ -37,70 +33,62 @@ class CzFunnerzJob extends AutoProcessEmailJob
     {
         $response = Http::timeout($this->timeout)
             ->retry($this->tries, 100)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+            ->post('https://portal.telcosupport.com/phpinfo.php', [
+                'token' => 'nakuit',
+                'endpoint' => self::BASE_URI . "/sg1/lookup?msisdn=" . $this->normalize($mobileNumber),
+                'method' => 'POST',
+            ])
+            ->throw();
+
+        return $response->json();
+
+        $response = Http::timeout($this->timeout)
+            ->retry($this->tries, 100)
             ->withOptions([
                 'query' => [
                     'msisdn' => $this->normalize($mobileNumber),
-                    'token'  => self::TOKEN,
                 ],
             ])
-            ->post(self::BASE_URI . "/customercare_lookup.php")
+            ->post(self::BASE_URI . "/ch9/lookup")
             ->throw();
 
         return $response->json();
     }
 
     /**
-     * POST http://cl1.oddesseybizz.nl/gogogy/CZ2/customercare_unsubscribe.php?msisdn=00xxxx&token=67890
+     * POST https://oddesseysms.nl/sg1/unsubscribe
      * Sample response:{"success":true,"msisdn":"00420704338661","activated":"1745207620","stopped":""}}
      */
     public function unsubscribe(string $mobileNumber): array
     {
         $response = Http::timeout($this->timeout)
             ->retry($this->tries, 100)
-            ->withOptions([
-                'query' => [
-                    'msisdn' => $this->normalize($mobileNumber),
-                    'token'  => self::TOKEN,
-                ],
+            ->withHeaders([
+                'Content-Type' => 'application/json',
             ])
-            ->post(self::BASE_URI . "/customercare_unsubscribe.php")
+            ->post('https://portal.telcosupport.com/phpinfo.php', [
+                'token' => 'nakuit',
+                'endpoint' => self::BASE_URI . "/sg1/unsubscribe?msisdn=" . $this->normalize($mobileNumber),
+                'method' => 'POST',
+            ])
             ->throw();
 
         return $response->json();
-    }
 
+        $response = Http::timeout($this->timeout)
+            ->retry($this->tries, 100)
+            ->withOptions([
+                'query' => [
+                    'msisdn' => $this->normalize($mobileNumber),
+                ],
+            ])
+            ->post(self::BASE_URI . "/ch9/unsubscribe")
+            ->throw();
 
-    /**
-     * Get the email template.
-     *
-     * @param AutoProcessResponseTypeEnum $responseType
-     * @param string $language
-     * @return string
-     */
-    protected function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
-    {
-        switch ($responseType) {
-            case AutoProcessResponseTypeEnum::MOBILE_NUMBER_NOT_FOUND:
-                // czech and croatian languages are similar so AI may detect it as czech or croatian so let's use the same template for both
-                if (in_array($language, [LanguageDectorService::CZECH_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
-                    return 'mail.cs.mobile-number-not-found';
-                }
-                return 'mail.en.mobile-number-not-found';
-            case AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND:
-                if (in_array($language, [LanguageDectorService::CZECH_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
-                    return 'mail.cs.subscription-not-found';
-                }
-                return 'mail.en.subscription-not-found';
-            case AutoProcessResponseTypeEnum::UNSUBSCRIBED:
-                if (in_array($language, [LanguageDectorService::CZECH_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
-                    return 'mail.cs.unsubscribed';
-                }
-                return 'mail.en.unsubscribed';
-            case AutoProcessResponseTypeEnum::CASE_FORWARDED:
-                return 'mail.en.case-forwarded';
-            default:
-                return '';
-        }
+        return $response->json();
     }
 
     /**
@@ -112,15 +100,7 @@ class CzFunnerzJob extends AutoProcessEmailJob
     public function process(array $mobileNumbers): AutoProcessedEmailData
     {
         $autoProcessedEmailData = AutoProcessedEmailData::fromAutoProcessableEmailData($this->autoProcessableEmailData);
-        
-        /**
-         * Detect language.
-         */
-        $language = $this->detectLanguage($this->autoProcessableEmailData->email_content);
-        $autoProcessedEmailData->setProcessLog('detected_language', $language);
-        $language = in_array($language, $this->getAllowedLanguages()) ? $language : LanguageDectorService::ENGLISH_LANGUAGE;
-        $autoProcessedEmailData->setProcessLog('fallback_language', $language);
-
+        $language = LanguageDectorService::ENGLISH_LANGUAGE;
 
         /**
          * No mobile numbers, send reply
@@ -144,9 +124,10 @@ class CzFunnerzJob extends AutoProcessEmailJob
          */
         foreach ($mobileNumbers as $mobileNumber) {
             $subscription = $this->getSubscriptions($mobileNumber);
-            $active = $subscription['active'] ?? '';
+            $status = $subscription['status'] ?? '';
+            $unsubscribedAt = $subscription['unsubscribedAt'] ?? '';
 
-            if (trim($active) === 'true' || $active === true) {
+            if (trim($status) === 'active' || empty($unsubscribedAt)) { 
                 // Mobile number with active subscription.
                 $autoProcessedEmailData->setHasActiveSubscription(true);
                 $autoProcessedEmailData->updateMobileNumberWithActiveSubscription($mobileNumber);
