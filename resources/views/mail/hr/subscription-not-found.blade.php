@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Pretplata nije pronađena</title>
+    <title>Aktivna pretplata nije pronađena</title>
 </head>
 <body style="background-color: #f6f6f6; font-family: Arial, sans-serif; margin: 0; padding: 0;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f6f6f6; padding: 30px 0;">
@@ -11,7 +11,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 32px;">
                     <tr>
                         <td>
-                            <h2 style="color: #333; margin-top: 0;">Pretplata nije pronađena</h2>
+                            <h2 style="color: #333; margin-top: 0;">Aktivna pretplata nije pronađena</h2>
                             <p style="color: #555; font-size: 16px;">
                                 Poštovani kupče,
                             </p>
