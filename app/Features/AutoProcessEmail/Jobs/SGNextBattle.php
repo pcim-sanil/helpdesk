@@ -7,7 +7,7 @@ use App\Services\LanguageDectorService;
 use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Http\Client\RequestException;
 class SGNextBattle extends AutoProcessEmailJob
 {
     private const BASE_URI = 'https://oddesseysms.nl';
@@ -39,13 +39,10 @@ class SGNextBattle extends AutoProcessEmailJob
                 'token' => 'nakuit',
                 'endpoint' => self::BASE_URI . "/sg1/lookup?msisdn=" . $this->normalize($mobileNumber),
                 'method' => 'POST',
-            ]);
+            ])
+            ->throw();
 
-        if ($response->successful()) {
-            return $response->json();
-        } else {
-            return ['status' => 'not found'];
-        }
+        return $response->json();
 
         $response = Http::timeout($this->timeout)
             ->retry($this->tries, 100)
@@ -125,7 +122,16 @@ class SGNextBattle extends AutoProcessEmailJob
          * Fetch subscriptions for each mobile number.
          */
         foreach ($mobileNumbers as $mobileNumber) {
-            $subscription = $this->getSubscriptions($mobileNumber);
+
+            try {
+                $subscription = $this->getSubscriptions($mobileNumber);
+            } catch(RequestException $e) {
+                if ($e->response->status() === 400) {
+                    continue;
+                }
+                throw $e;
+            }
+
             $status = $subscription['status'] ?? '';
             $unsubscribedAt = $subscription['unsubscribedAt'] ?? '';
 
