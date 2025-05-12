@@ -16,6 +16,8 @@ class LanguageDectorService
     public const ARABIC_LANGUAGE = 'ar';
     public const GERMAN_LANGUAGE = 'de';
     public const NORWEGIAN_LANGUAGE = 'no';
+    public const DANISH_LANGUAGE = 'da';
+    public const SWEDISH_LANGUAGE = 'sv';
 
     /**
      * Detect the language of the text.
