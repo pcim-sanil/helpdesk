@@ -8,13 +8,13 @@ use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
 use App\Features\AutoProcessEmail\OddesseysmsTrait;
 
-class SGNextBattle extends AutoProcessEmailJob
+class RSMstream extends AutoProcessEmailJob
 {
     use OddesseysmsTrait;
 
     public function getBaseUri(): string
     {
-        return 'https://oddesseysms.nl/sg1';
+        return 'https://oddesseysms.nl/rs6';
     }
 
     /**
@@ -25,8 +25,43 @@ class SGNextBattle extends AutoProcessEmailJob
     public function getAllowedLanguages(): array
     {
         return [
+            LanguageDectorService::SERBIAN_LANGUAGE,
+            LanguageDectorService::CROATIAN_LANGUAGE,
             LanguageDectorService::ENGLISH_LANGUAGE
         ];
+    }
+
+        /**
+     * Get the email template.
+     *
+     * @param AutoProcessResponseTypeEnum $responseType
+     * @param string $language
+     * @return string
+     */
+    protected function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
+    {
+        switch ($responseType) {
+            case AutoProcessResponseTypeEnum::MOBILE_NUMBER_NOT_FOUND:
+                // czech and croatian languages are similar so AI may detect it as czech or croatian so let's use the same template for both
+                if (in_array($language, [LanguageDectorService::SERBIAN_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
+                    return 'mail.sr.mobile-number-not-found';
+                }
+                return 'mail.en.mobile-number-not-found';
+            case AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND:
+                if (in_array($language, [LanguageDectorService::SERBIAN_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
+                    return 'mail.sr.subscription-not-found';
+                }
+                return 'mail.en.subscription-not-found';
+            case AutoProcessResponseTypeEnum::UNSUBSCRIBED:
+                if (in_array($language, [LanguageDectorService::SERBIAN_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
+                    return 'mail.sr.unsubscribed';
+                }
+                return 'mail.en.unsubscribed';
+            case AutoProcessResponseTypeEnum::CASE_FORWARDED:
+                return 'mail.en.case-forwarded';
+            default:
+                return '';
+        }
     }
 
     /**
@@ -38,7 +73,14 @@ class SGNextBattle extends AutoProcessEmailJob
     public function process(array $mobileNumbers): AutoProcessedEmailData
     {
         $autoProcessedEmailData = AutoProcessedEmailData::fromAutoProcessableEmailData($this->autoProcessableEmailData);
-        $language = LanguageDectorService::ENGLISH_LANGUAGE;
+
+        /**
+         * Detect language.
+         */
+        $language = $this->detectLanguage($this->autoProcessableEmailData->email_content);
+        $autoProcessedEmailData->setProcessLog('detected_language', $language);
+        $language = in_array($language, $this->getAllowedLanguages()) ? $language : LanguageDectorService::ENGLISH_LANGUAGE;
+        $autoProcessedEmailData->setProcessLog('fallback_language', $language);
 
         /**
          * No mobile numbers, send reply
