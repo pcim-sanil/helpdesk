@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\Tickets\TicketListController;
+use App\Livewire\EmailAnalyzer;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -25,6 +26,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tickets/closed', [TicketListController::class, 'closed'])->name('tickets.closed');
     Route::get('/tickets/all', [TicketListController::class, 'all'])->name('tickets.all');
 });
+
+
+Route::get('/analyze-email', EmailAnalyzer::class);
 
 
 
