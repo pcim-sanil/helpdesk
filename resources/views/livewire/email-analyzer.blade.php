@@ -6,10 +6,12 @@
     ></textarea>
 
     <button 
-        wire:click.debounce.1500ms="analyzeEmail" 
+        wire:click.debounce.500ms="analyzeEmail" 
         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow"
+        wire:loading.attr="disabled"
     >
-        Detect Intent
+        <span wire:loading.remove>Detect Intent</span>
+        <span wire:loading>...</span>
     </button>
 
     @if($analysisResult)
