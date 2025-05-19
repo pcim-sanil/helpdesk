@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'openai' => [
+        'base_uri' => env('OPENAI_BASE_URI', 'https://api.openai.com/v1'),
+        'key' => env('OPENAI_API_KEY'),
+        'timeout' => env('OPENAI_TIMEOUT', 300),
+    ],
+
 ];

@@ -59,6 +59,7 @@ class AuroProcessEmailService
                         and apes.auto_process_on_helpdesk = '1'
                         and eq.id not in (select ape1.query_email_id from auto_processed_email ape1)
                         and eq.sender_email not like 'MicrosoftExchange%' 
+                        and eq.sender_email != 'producer@creativeclicks.com'
                 LIMIT $limit";
 
         
