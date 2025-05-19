@@ -18,11 +18,11 @@ class EmailAnalyzer extends Component
                 'model' => 'gpt-4o',
                 'temperature' => 0,
                 'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'You are an AI that analyzes emails. Your job is to detect the user\'s intent (refund, unsubscribe, or other), and the language of the email in 2-letter ISO code. Output only a JSON object like: {"language":"en","intent":["refund","unsubscribe","other"]}.',
-                ],
-                [
+                    [
+                        'role' => 'system',
+                        'content' => 'You are an AI that analyzes emails. Your job is to detect the sender\'s intention from the email content. (refund, unsubscribe, or other). Output only a JSON object like: {"intent":["refund","unsubscribe"]} or {"intent":["other"]} or {"intent":["refund"]}.',
+                    ],
+                    [
                         'role' => 'user',
                         'content' => $this->emailContent,
                     ],
@@ -36,8 +36,6 @@ class EmailAnalyzer extends Component
             if ($content) {
                 $decoded = json_decode($content, true);
                 if (json_last_error() === JSON_ERROR_NONE) {
-
-                    dd($decoded);
                     $this->analysisResult = $decoded;
                 } else {
                     $this->analysisResult = ['error' => 'Invalid JSON format in response.'];
