@@ -25,16 +25,24 @@ use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Models\Helpdesk\TicketModel;
 use App\Features\AutoProcessEmail\AutoProcessException;
 use App\Features\QueryEmail\QueryEmailService;
+use App\Services\GptService;
 
 abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private const CC_EMAIL = 'santonil2003@hotmail.com';
+    private const CC_EMAIL = '';
 
     public $tries = 2;
     public int $uniqueFor = 604800;
     public $timeout = 300;
+
+    /**
+     * Detect intent and language.
+     *
+     * @var bool
+     */
+    protected bool $detectIntent = true;
 
     /**
      * Create a new job instance.v 
@@ -397,6 +405,51 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
         return $autoProcessedEmailData;
     }
 
+    /**
+     * Check intent and language.
+     *
+     * @param string $content
+     * @return array
+     */
+    protected function checkIntent(string $content): array
+    {
+        $gptService = new GptService();
+        try {
+            $params = [
+                'model' => 'gpt-4o',
+                'temperature' => 0,
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'You are an AI that analyzes emails. Your job is to detect the sender\'s intention from the email content. (refund, unsubscribe, or other). Output only a JSON object like: {"intent":["refund","unsubscribe"]} or {"intent":["other"]} or {"intent":["refund"]}.',
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $content,
+                    ],
+                ],
+            ];
+
+            $response = $gptService->chat($params);
+
+            $content = $response['choices'][0]['message']['content'] ?? null;
+
+            if ($content) {
+                $decoded = json_decode($content, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+
+                    return $decoded;
+                } else {
+                    return ['error' => 'Invalid JSON format in response.'];
+                }
+            } else {
+                return ['error' => 'No content returned from API.'];
+            }
+        } catch (\Exception $e) {
+            return ['error' => 'Exception occurred: ' . $e->getMessage()];
+        }
+    }
+
 
     /**
      * Execute the job.
@@ -417,6 +470,27 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
             $autoProcessedEmailData = $this->process($mobileNumbers);
 
             $this->logAutoProcessedEmail($autoProcessedEmailData);
+
+            // if not forwarded, check intent and language
+            if (
+                $this->detectIntent
+                && ($autoProcessedEmailData->response_type != AutoProcessResponseTypeEnum::CASE_FORWARDED)
+                && !empty($mobileNumbers)
+            ) {
+                try {
+                    $intents = $this->checkIntent($emailContent);
+                    $intent = $intents['intent'] ?? [];
+                    if (in_array('refund', $intent)) {
+                        $autoProcessedEmailData = $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
+                        $this->logAutoProcessedEmail($autoProcessedEmailData);
+                    }
+                } catch (Throwable $e) {
+                    Log::channel('email_processing')->error('Failed to check intent', [
+                        'email_id' => $this->autoProcessableEmailData->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
 
             Log::channel('email_processing')->info('Successfully processed email', [
                 'email_id' => $this->autoProcessableEmailData->id,
