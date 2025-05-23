@@ -7,12 +7,21 @@ use App\Services\LanguageDectorService;
 use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
 use Illuminate\Support\Facades\Http;
+use App\Features\AutoProcessEmail\OddesseyBizzTrait;
 
 class CzFunnerzJob extends AutoProcessEmailJob
 {
-    private const BASE_URI = 'http://cl1.oddesseybizz.nl/gogogy/CZ2';
-    private const TOKEN = '67890';
+    use OddesseyBizzTrait;
 
+    public function getBaseUri(): string
+    {
+        return 'http://cl1.oddesseybizz.nl/gogogy/CZ2';
+    }
+
+    public function getToken(): string
+    {
+        return '67890';
+    }
 
     /**
      * Get allowed languages.
@@ -27,48 +36,6 @@ class CzFunnerzJob extends AutoProcessEmailJob
             LanguageDectorService::ENGLISH_LANGUAGE
         ];
     }
-
-    /**
-     * POST http://cl1.oddesseybizz.nl/gogogy/CZ2/customercare_lookup.php?msisdn=00xxxx&token=67890
-     * Sample response:{"active":true,"msisdn":"00420722109300","activated":"1745201345","stopped":"","operator":"23002","opt-out":"unsubscribe"},
-     * Sample response:{"active":false,"msisdn":"00420736166731","activated":"1745202969","stopped":"1746429802","operator":"23003","opt-out":"unsubscribe"}}
-     */
-    public function getSubscriptions(string $mobileNumber): array
-    {
-        $response = Http::timeout($this->timeout)
-            ->retry($this->tries, 100)
-            ->withOptions([
-                'query' => [
-                    'msisdn' => $this->normalize($mobileNumber),
-                    'token'  => self::TOKEN,
-                ],
-            ])
-            ->post(self::BASE_URI . "/customercare_lookup.php")
-            ->throw();
-
-        return $response->json();
-    }
-
-    /**
-     * POST http://cl1.oddesseybizz.nl/gogogy/CZ2/customercare_unsubscribe.php?msisdn=00xxxx&token=67890
-     * Sample response:{"success":true,"msisdn":"00420704338661","activated":"1745207620","stopped":""}}
-     */
-    public function unsubscribe(string $mobileNumber): array
-    {
-        $response = Http::timeout($this->timeout)
-            ->retry($this->tries, 100)
-            ->withOptions([
-                'query' => [
-                    'msisdn' => $this->normalize($mobileNumber),
-                    'token'  => self::TOKEN,
-                ],
-            ])
-            ->post(self::BASE_URI . "/customercare_unsubscribe.php")
-            ->throw();
-
-        return $response->json();
-    }
-
 
     /**
      * Get the email template.
@@ -142,18 +109,7 @@ class CzFunnerzJob extends AutoProcessEmailJob
         /**
          * Fetch subscriptions for each mobile number.
          */
-        foreach ($mobileNumbers as $mobileNumber) {
-            $subscription = $this->getSubscriptions($mobileNumber);
-            $active = $subscription['active'] ?? '';
-
-            if (trim($active) === 'true' || $active === true) {
-                // Mobile number with active subscription.
-                $autoProcessedEmailData->setHasActiveSubscription(true);
-                $autoProcessedEmailData->updateMobileNumberWithActiveSubscription($mobileNumber);
-            }
-
-            $autoProcessedEmailData->setSubscriptionsResponse($mobileNumber, $subscription);
-        }
+         $autoProcessedEmailData = $this->fetchSubscriptionsForMobileNumbers($autoProcessedEmailData, $mobileNumbers);
 
         /**
          * No active subscription, send reply
@@ -175,17 +131,8 @@ class CzFunnerzJob extends AutoProcessEmailJob
         /**
          * Unsubscribe from each subscription.
          */
-        foreach ($mobileNumbersWithActiveSubscription as $mobileNumberWithActiveSubscription) {
-            $unsubscribed = $this->unsubscribe($mobileNumberWithActiveSubscription);
-            $active = $unsubscribed['success'] ?? '';
+        $autoProcessedEmailData = $this->unsubscribeFromMobileNumbers($autoProcessedEmailData, $mobileNumbersWithActiveSubscription);
 
-            if (trim($active) === 'true' || $active === true) {
-                $autoProcessedEmailData->setWasUnsubscribed(true);
-                $autoProcessedEmailData->updateUnsubscribedMobileNumbers($mobileNumberWithActiveSubscription);
-            }
-
-            $autoProcessedEmailData->setUnsubscribeResponse($mobileNumberWithActiveSubscription, $unsubscribed);
-        }
         $unsubscribedMobileNumbers = $autoProcessedEmailData->getUnsubscribedMobileNumbers();
 
         /**

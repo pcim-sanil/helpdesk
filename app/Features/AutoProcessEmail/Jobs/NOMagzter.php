@@ -103,19 +103,7 @@ class NOMagzter extends AutoProcessEmailJob
         /**
          * Fetch subscriptions for each mobile number.
          */
-        foreach ($mobileNumbers as $mobileNumber) {
-            $subscription = $this->getSubscriptions($mobileNumber);
-            $status = $subscription['status'] ?? '';
-            $unsubscribedAt = $subscription['unsubscribedAt'] ?? '';
-
-            if (trim($status) === 'active' || empty($unsubscribedAt)) { 
-                // Mobile number with active subscription.
-                $autoProcessedEmailData->setHasActiveSubscription(true);
-                $autoProcessedEmailData->updateMobileNumberWithActiveSubscription($mobileNumber);
-            }
-
-            $autoProcessedEmailData->setSubscriptionsResponse($mobileNumber, $subscription);
-        }
+         $autoProcessedEmailData = $this->fetchSubscriptionsForMobileNumbers($autoProcessedEmailData, $mobileNumbers);
 
         /**
          * No active subscription, send reply
@@ -137,17 +125,8 @@ class NOMagzter extends AutoProcessEmailJob
         /**
          * Unsubscribe from each subscription.
          */
-        foreach ($mobileNumbersWithActiveSubscription as $mobileNumberWithActiveSubscription) {
-            $unsubscribed = $this->unsubscribe($mobileNumberWithActiveSubscription);
-            $active = $unsubscribed['success'] ?? '';
-
-            if (trim($active) === 'true' || $active === true) {
-                $autoProcessedEmailData->setWasUnsubscribed(true);
-                $autoProcessedEmailData->updateUnsubscribedMobileNumbers($mobileNumberWithActiveSubscription);
-            }
-
-            $autoProcessedEmailData->setUnsubscribeResponse($mobileNumberWithActiveSubscription, $unsubscribed);
-        }
+        $autoProcessedEmailData = $this->unsubscribeFromMobileNumbers($autoProcessedEmailData, $mobileNumbersWithActiveSubscription);
+        
         $unsubscribedMobileNumbers = $autoProcessedEmailData->getUnsubscribedMobileNumbers();
 
         /**
