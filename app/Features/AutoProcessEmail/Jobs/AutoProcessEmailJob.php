@@ -299,6 +299,7 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
             $autoProcessedEmail->mobile_numbers = $autoProcessedEmailData->mobile_numbers;
             $autoProcessedEmail->forward_to = $autoProcessedEmailData->forward_to;
             $autoProcessedEmail->process_log = $autoProcessedEmailData->process_log;
+            $autoProcessedEmail->intents = $autoProcessedEmailData->intents;
 
             if ($autoProcessedEmail->save()) {
                 try {
@@ -475,13 +476,16 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
             if (
                 $this->detectIntent
                 && ($autoProcessedEmailData->response_type != AutoProcessResponseTypeEnum::CASE_FORWARDED)
-                && !empty($mobileNumbers)
+                && (!empty($mobileNumbers) || $this->wasAutoProcessed())
             ) {
                 try {
                     $intents = $this->checkIntent($emailContent);
                     $intent = $intents['intent'] ?? [];
                     if (in_array('refund', $intent)) {
                         $autoProcessedEmailData = $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
+
+                        $autoProcessedEmailData->setIntents($intents);
+                        
                         $this->logAutoProcessedEmail($autoProcessedEmailData);
                     }
                 } catch (Throwable $e) {

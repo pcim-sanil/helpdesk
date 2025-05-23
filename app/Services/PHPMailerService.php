@@ -3,9 +3,8 @@
 namespace App\Services;
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 use Illuminate\Support\Facades\Log;
-
+use Throwable;
 class PHPMailerService
 {
     public function __construct(private array $config)
@@ -56,12 +55,21 @@ class PHPMailerService
         try {
             // add recipients
             foreach ((array) $to as $addr) {
+                if (!filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+                    continue;
+                }
                 $mailer->addAddress($addr);
             }
             foreach ((array) $cc as $addr) {
+                if (!filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+                    continue;
+                }
                 $mailer->addCC($addr);
             }
             foreach ((array) $bcc as $addr) {
+                if (!filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+                    continue;
+                }
                 $mailer->addBCC($addr);
             }
 
@@ -72,7 +80,7 @@ class PHPMailerService
             $mailer->AltBody = strip_tags($content);
 
             return $mailer->send();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             Log::error("PHPMailer error: {$e->getMessage()}");
             throw $e;
         }

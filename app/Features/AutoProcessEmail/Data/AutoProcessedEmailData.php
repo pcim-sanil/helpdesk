@@ -23,6 +23,7 @@ class AutoProcessedEmailData extends Data
         public array $forward_to = [],
         public array $process_log = [],
         public ?bool $reply_email_sent = null,
+        public array $intents = [],
     ) {}
 
     public static function fromAutoProcessableEmailData(AutoProcessableEmailData $autoProcessableEmailData): self
@@ -137,5 +138,15 @@ class AutoProcessedEmailData extends Data
     public function getReplyEmailSent(): ?bool
     {
         return $this->reply_email_sent;
+    }
+
+    public function setIntents(array $intents): void
+    {
+        $this->intents = $intents;
+    }
+
+    public function getIntents(): array 
+    {
+        return $this->intents;
     }
 }
