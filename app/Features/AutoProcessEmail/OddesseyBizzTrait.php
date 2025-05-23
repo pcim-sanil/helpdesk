@@ -90,7 +90,7 @@ trait OddesseyBizzTrait
             $activated = $subscription['activated'] ?? '';
             $stopped = $subscription['stopped'] ?? '';
 
-            if (in_array($active, [true, 'true'], true) || (empty($stopped) && !empty($activated))) {
+            if (in_array($active, [true, 'true'], true)) {
                 // Mobile number with active subscription.
                 $autoProcessedEmailData->setHasActiveSubscription(true);
                 $autoProcessedEmailData->updateMobileNumberWithActiveSubscription($mobileNumber);

@@ -83,9 +83,10 @@ trait OddesseysmsTrait
             $success = $subscription['success'] ?? false;
             $status = $subscription['status'] ?? '';
             $error = $subscription['error'] ?? '';
+            $activatedAt = $subscription['activatedAt'] ?? '';
             $unsubscribedAt = $subscription['unsubscribedAt'] ?? '';
             
-            if (in_array($success, [true, 'true'], true) && (trim($status) === 'active' || empty($unsubscribedAt))) { 
+            if (in_array($success, [true, 'true'], true) && (trim($status) === 'active')) { 
                 // Mobile number with active subscription.
                 $autoProcessedEmailData->setHasActiveSubscription(true);
                 $autoProcessedEmailData->updateMobileNumberWithActiveSubscription($mobileNumber);
@@ -96,6 +97,7 @@ trait OddesseysmsTrait
 
         return $autoProcessedEmailData;
     }
+    
 
     /**
      * Unsubscribe from mobile numbers.
