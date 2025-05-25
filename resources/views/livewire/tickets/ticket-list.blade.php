@@ -1,94 +1,70 @@
 <div class="p-4 bg-white dark:bg-zinc-900 shadow-sm">
-    <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Tickets</h2>
-
     <!-- Filters Section -->
     <div class="mb-6">
-        <!-- Single Row Filters -->
-        <div class="flex gap-3">
+        <div class="flex flex-wrap gap-3">
             <!-- Search Input -->
-            <div class="relative flex-1">
-                <input
-                    type="text"
-                    wire:model.live.debounce.500ms="search"
-                    placeholder="Search by Ticket ID, Phone, Operator, or Company"
-                    class="w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                </span>
-                @if($search)
-                    <button
-                        wire:click="$set('search', '')"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                @endif
+            <div class="relative flex-1 min-w-[200px]">
+                <flux:input kbd="⌘K" size="sm" icon="magnifying-glass" placeholder="Search..." wire:model.live.debounce.500ms="search"/>
                 <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
                     Search
                 </label>
             </div>
 
+            <!-- High Priority Filter -->
+            <div class="relative w-40 min-w-[150px] hidden sm:block">
+                <flux:select size="sm" placeholder="Choose High Priority" wire:model.live="isHighPriority">
+                    <flux:select.option value="">All</flux:select.option>
+                    <flux:select.option value="1">Yes</flux:select.option>
+                    <flux:select.option value="0">No</flux:select.option>
+                </flux:select>
+                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
+                    High Priority
+                </label>
+            </div>
+
+            <!-- Urgent Filter -->
+            <div class="relative w-40 min-w-[150px] hidden sm:block">
+                <flux:select size="sm" placeholder="Choose Urgent" wire:model.live="isUrgent">
+                    <flux:select.option value="">All</flux:select.option>
+                    <flux:select.option value="1">Yes</flux:select.option>
+                    <flux:select.option value="0">No</flux:select.option>
+                </flux:select>
+                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
+                    Urgent
+                </label>
+            </div>
+
             <!-- Status Filter -->
-            <div class="relative w-40">
-                <select
-                    wire:model.live="status"
-                    class="appearance-none w-full border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
+            <div class="relative w-40 min-w-[150px] hidden sm:block">
+                <flux:select size="sm" placeholder="Choose Status" wire:model.live="status">
                     @foreach($this->getStatusOptions() as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
+                        <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                     @endforeach
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                </div>
+                </flux:select>
                 <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
                     Status
                 </label>
             </div>
 
             <!-- Enquiry Type Filter -->
-            <div class="relative w-40">
-                <select
-                    wire:model.live="enquiryType"
-                    class="appearance-none w-full border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
+            <div class="relative w-40 min-w-[150px] hidden sm:block">
+                <flux:select size="sm" placeholder="Choose Enquiry Type" wire:model.live="enquiryType">
                     @foreach($this->getEnquiryTypeOptions() as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
+                        <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                     @endforeach
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                </div>
+                </flux:select>
                 <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
                     Type
                 </label>
             </div>
 
             <!-- Date Range Filter -->
-            <div class="relative w-40">
-                <select
-                    wire:model.live="dateRange"
-                    class="appearance-none w-full border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
+            <div class="relative w-40 min-w-[150px] hidden sm:block">
+                <flux:select size="sm" placeholder="Choose Date Range" wire:model.live="dateRange">
                     @foreach($this->getDateRangeOptions() as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
+                        <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                     @endforeach
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                </div>
+                </flux:select>
                 <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
                     Date Range
                 </label>
@@ -96,8 +72,16 @@
         </div>
     </div>
 
-    <!-- Table Section -->
-    <div class="overflow-x-auto">
+    <!-- Table Section with Loading Overlay -->
+    <div class="relative overflow-x-auto relative">
+        <!-- Centered Flux Icon Loading Spinner -->
+        <div wire:loading.delay wire:target="search, status, enquiryType, dateRange, sortBy, isHighPriority, isUrgent, perPage, nextPage, previousPage, gotoPage" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-zinc-900/60 z-10">
+            <div class="h-full flex items-center justify-center">
+                <flux:icon.loading class="w-6 h-6 text-gray-500 dark:text-gray-300" />
+            </div>
+        </div>
+        
+
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-zinc-800">
                 <tr>
@@ -107,9 +91,9 @@
                             <span>@if($sortDirection === 'asc') ▲ @else ▼ @endif</span>
                         @endif
                     </th>
-                    <th wire:click="sortBy('tickets.caller_info_mobile')" class="cursor-pointer px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wider">
-                        Phone
-                        @if($sortColumn === 'tickets.caller_info_mobile')
+                    <th wire:click="sortBy('tickets.enquiry_type')" class="cursor-pointer px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wider">
+                        Type
+                        @if($sortColumn === 'tickets.enquiry_type')
                             <span>@if($sortDirection === 'asc') ▲ @else ▼ @endif</span>
                         @endif
                     </th>
@@ -119,15 +103,9 @@
                             <span>@if($sortDirection === 'asc') ▲ @else ▼ @endif</span>
                         @endif
                     </th>
-                    <th wire:click="sortBy('users.name')" class="cursor-pointer px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wider">
-                        Operator
-                        @if($sortColumn === 'users.name')
-                            <span>@if($sortDirection === 'asc') ▲ @else ▼ @endif</span>
-                        @endif
-                    </th>
-                    <th wire:click="sortBy('tickets.enquiry_type')" class="cursor-pointer px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wider">
-                        Type
-                        @if($sortColumn === 'tickets.enquiry_type')
+                    <th wire:click="sortBy('tickets.caller_info_mobile')" class="cursor-pointer px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wider">
+                        Phone
+                        @if($sortColumn === 'tickets.caller_info_mobile')
                             <span>@if($sortDirection === 'asc') ▲ @else ▼ @endif</span>
                         @endif
                     </th>
@@ -137,35 +115,64 @@
                             <span>@if($sortDirection === 'asc') ▲ @else ▼ @endif</span>
                         @endif
                     </th>
+                    <th wire:click="sortBy('users.name')" class="cursor-pointer px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wider">
+                        Operator
+                        @if($sortColumn === 'users.name')
+                            <span>@if($sortDirection === 'asc') ▲ @else ▼ @endif</span>
+                        @endif
+                    </th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wider">
-                        Actions
+                        View
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wider">
+                        Assigned
                     </th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-zinc-900 divide-y divide-gray-200 dark:divide-gray-700">
                 @foreach ($tickets as $ticket)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->ticket_id }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->caller_info_mobile }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->company_name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->operator_name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                        {{ App\Services\TicketService::getEnquiryTypeLabel($ticket->enquiry_type) }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {{ $ticket->created_date }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                        <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">View</a>
-                    </td>
-                </tr>
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->ticket_id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
+                            {{ App\Services\TicketService::getEnquiryTypeLabel($ticket->enquiry_type) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->company_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->caller_info_mobile }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {{ date('d/m/Y H:i', strtotime($ticket->created_date)) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->operator_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
+                            <flux:button size="sm" icon="eye">View</flux:button>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
+                            @if($ticket->operator_id == 0)
+                                <flux:button size="sm" wire:click="assignTicket({{ $ticket->ticket_id }})" icon="user-plus">Assign</flux:button>
+                            @else
+                                <flux:button size="sm" wire:click="unassignTicket({{ $ticket->ticket_id }})" icon="user-minus" variant="danger">Un-assign</flux:button>
+                            @endif
+                        </td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
-    <div class="mt-6">
-        {{ $tickets->links() }}
-    </div>
+    <div class="mt-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <!-- Per Page Selector (always first) -->
+        <div>
+            <flux:select size="sm" placeholder="Per Page" wire:model.live="perPage">
+                <flux:select.option value="5">5</flux:select.option>
+                <flux:select.option value="10">10</flux:select.option>
+                <flux:select.option value="25">25</flux:select.option>
+                <flux:select.option value="50">50</flux:select.option>
+            </flux:select>
+        </div>
+    
+        <!-- Pagination Controls -->
+        <div class="flex justify-end">
+            {{ $tickets->links() }}
+        </div>
+    </div>    
 </div>
