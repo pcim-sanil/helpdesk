@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\TicketService;
-
+use Livewire\Attributes\Url;
 class TicketList extends Component
 {
     use WithPagination;
@@ -18,13 +18,15 @@ class TicketList extends Component
      *
      * @var int
      */
+    #[Url(history: true)]
     public int $perPage = 5;
 
     /**
      * The column to sort by
-     *
+     *t
      * @var string
      */
+    #[Url(history: true)]
     public string $sortColumn = 'tickets.ticket_id';
 
     /**
@@ -32,6 +34,7 @@ class TicketList extends Component
      *
      * @var string
      */
+    #[Url(history: true)]
     public string $sortDirection = 'desc';
 
     /**
@@ -39,6 +42,7 @@ class TicketList extends Component
      *
      * @var string
      */
+    #[Url(history: true)]
     public string $search = '';
 
     /**
@@ -46,6 +50,7 @@ class TicketList extends Component
      *
      * @var string
      */
+    #[Url(history: true)]
     public ?string $status = null;
 
     /**
@@ -53,6 +58,7 @@ class TicketList extends Component
      *
      * @var string
      */
+    #[Url(history: true)]
     public ?string $dateRange = 'last_3_months';
 
     /**
@@ -60,7 +66,25 @@ class TicketList extends Component
      *
      * @var string|null
      */
+    #[Url(history: true)]
     public ?string $enquiryType = null;
+
+    /**
+     * The urgent filter
+     *
+     * @var bool
+     */
+    #[Url(history: true)]
+    public ?int $isUrgent = null;
+
+
+    /**
+     * The high priority filter
+     *
+     * @var bool
+     */
+    #[Url(history: true)]
+    public ?int $isHighPriority = null;
 
     /**
      * Get the date range options
@@ -181,6 +205,26 @@ class TicketList extends Component
             if ($date) {
                 $query->where('tickets.created_date', '>=', $date->format('Y-m-d'));
             }
+        }
+
+        // High Priority filter
+        if ($this->isHighPriority !== null && $this->isHighPriority !== 'all') {
+            if ($this->isHighPriority === 1) {
+                $query->whereIn('tickets.service_1300', function ($query) {
+                    $query->select('service_1300')
+                        ->from('high_priority_sms_services');
+                });
+            } else {
+                $query->whereNotIn('tickets.service_1300', function ($query) {
+                    $query->select('service_1300')
+                        ->from('high_priority_sms_services');
+                });
+            }
+        }
+
+        // Urgent filter
+        if ($this->isUrgent !== null && $this->isUrgent !== 'all') {
+            $query->where('tickets.is_urgent', '=', $this->isUrgent);
         }
 
         // Search logic
