@@ -2,9 +2,9 @@
 
 namespace App\Features\AutoProcessEmail;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\RequestException;
 use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
 
 trait OddesseysmsTrait
 {
@@ -12,7 +12,7 @@ trait OddesseysmsTrait
 
     public function getSubscriptions(string $mobileNumber): array
     {
-        try{
+        try {
             $response = Http::timeout(300)
                 ->retry(2, 100)
                 ->withHeaders([
@@ -20,45 +20,45 @@ trait OddesseysmsTrait
                 ])
                 ->post('https://portal.telcosupport.com/phpinfo.php', [
                     'token' => 'nakuit',
-                    'endpoint' => $this->getBaseUri() . "/lookup?msisdn=" . $this->normalize($mobileNumber),
+                    'endpoint' => $this->getBaseUri().'/lookup?msisdn='.$this->normalize($mobileNumber),
                     'method' => 'POST',
                 ])
                 ->throw();
 
             return $response->json();
-        } catch(RequestException $e) {
+        } catch (RequestException $e) {
             $status = $e->response->status();
             $body = $e->response?->json();
 
-            if(is_array($body)) {
+            if (is_array($body)) {
                 return $body;
             }
 
             throw $e;
         }
     }
-    
+
     public function unsubscribe(string $mobileNumber): array
     {
-        try{
+        try {
             $response = Http::timeout(300)
                 ->retry(2, 100)
                 ->withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-            ->post('https://portal.telcosupport.com/phpinfo.php', [
-                'token' => 'nakuit',
-                'endpoint' => $this->getBaseUri() . "/unsubscribe?msisdn=" . $this->normalize($mobileNumber),
-                'method' => 'POST',
-            ])
-            ->throw();
+                    'Content-Type' => 'application/json',
+                ])
+                ->post('https://portal.telcosupport.com/phpinfo.php', [
+                    'token' => 'nakuit',
+                    'endpoint' => $this->getBaseUri().'/unsubscribe?msisdn='.$this->normalize($mobileNumber),
+                    'method' => 'POST',
+                ])
+                ->throw();
 
             return $response->json();
-        } catch(RequestException $e) {
+        } catch (RequestException $e) {
             $status = $e->response->status();
             $body = $e->response?->json();
 
-            if(is_array($body)) {
+            if (is_array($body)) {
                 return $body;
             }
 
@@ -68,10 +68,6 @@ trait OddesseysmsTrait
 
     /**
      * Fetch subscriptions for mobile numbers.
-     *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @param array $mobileNumbers
-     * @return AutoProcessedEmailData
      */
     public function fetchSubscriptionsForMobileNumbers(AutoProcessedEmailData $autoProcessedEmailData, array $mobileNumbers): AutoProcessedEmailData
     {
@@ -85,8 +81,8 @@ trait OddesseysmsTrait
             $error = $subscription['error'] ?? '';
             $activatedAt = $subscription['activatedAt'] ?? '';
             $unsubscribedAt = $subscription['unsubscribedAt'] ?? '';
-            
-            if (in_array($success, [true, 'true'], true) && (trim($status) === 'active')) { 
+
+            if (in_array($success, [true, 'true'], true) && (trim($status) === 'active')) {
                 // Mobile number with active subscription.
                 $autoProcessedEmailData->setHasActiveSubscription(true);
                 $autoProcessedEmailData->updateMobileNumberWithActiveSubscription($mobileNumber);
@@ -97,14 +93,9 @@ trait OddesseysmsTrait
 
         return $autoProcessedEmailData;
     }
-    
 
     /**
      * Unsubscribe from mobile numbers.
-     *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @param array $mobileNumbersWithActiveSubscription
-     * @return AutoProcessedEmailData
      */
     public function unsubscribeFromMobileNumbers(AutoProcessedEmailData $autoProcessedEmailData, array $mobileNumbersWithActiveSubscription): AutoProcessedEmailData
     {
@@ -124,5 +115,4 @@ trait OddesseysmsTrait
 
         return $autoProcessedEmailData;
     }
-    
 }

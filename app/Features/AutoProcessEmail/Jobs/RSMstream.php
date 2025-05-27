@@ -2,11 +2,10 @@
 
 namespace App\Features\AutoProcessEmail\Jobs;
 
-use App\Features\AutoProcessEmail\Jobs\AutoProcessEmailJob;
-use App\Services\LanguageDectorService;
 use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
 use App\Features\AutoProcessEmail\OddesseysmsTrait;
+use App\Services\LanguageDectorService;
 
 class RSMstream extends AutoProcessEmailJob
 {
@@ -19,24 +18,18 @@ class RSMstream extends AutoProcessEmailJob
 
     /**
      * Get allowed languages.
-     *
-     * @return array
      */
     public function getAllowedLanguages(): array
     {
         return [
             LanguageDectorService::SERBIAN_LANGUAGE,
             LanguageDectorService::CROATIAN_LANGUAGE,
-            LanguageDectorService::ENGLISH_LANGUAGE
+            LanguageDectorService::ENGLISH_LANGUAGE,
         ];
     }
 
-        /**
+    /**
      * Get the email template.
-     *
-     * @param AutoProcessResponseTypeEnum $responseType
-     * @param string $language
-     * @return string
      */
     protected function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
     {
@@ -46,16 +39,19 @@ class RSMstream extends AutoProcessEmailJob
                 if (in_array($language, [LanguageDectorService::SERBIAN_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
                     return 'mail.sr.mobile-number-not-found';
                 }
+
                 return 'mail.en.mobile-number-not-found';
             case AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND:
                 if (in_array($language, [LanguageDectorService::SERBIAN_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
                     return 'mail.sr.subscription-not-found';
                 }
+
                 return 'mail.en.subscription-not-found';
             case AutoProcessResponseTypeEnum::UNSUBSCRIBED:
                 if (in_array($language, [LanguageDectorService::SERBIAN_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
                     return 'mail.sr.unsubscribed';
                 }
+
                 return 'mail.en.unsubscribed';
             case AutoProcessResponseTypeEnum::CASE_FORWARDED:
                 return 'mail.en.case-forwarded';
@@ -66,9 +62,6 @@ class RSMstream extends AutoProcessEmailJob
 
     /**
      * Process the email.
-     *
-     * @param array $mobileNumbers
-     * @return AutoProcessedEmailData
      */
     public function process(array $mobileNumbers): AutoProcessedEmailData
     {
@@ -125,13 +118,13 @@ class RSMstream extends AutoProcessEmailJob
          * Unsubscribe from each subscription.
          */
         $autoProcessedEmailData = $this->unsubscribeFromMobileNumbers($autoProcessedEmailData, $mobileNumbersWithActiveSubscription);
-        
+
         $unsubscribedMobileNumbers = $autoProcessedEmailData->getUnsubscribedMobileNumbers();
 
         /**
          * Failed to unsubscribe from any subscription.
          */
-        if (!empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
+        if (! empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
 
             $autoProcessedEmailData->setProcessLog('api_error', 'Failed to unsubscribe from any subscription');
 
@@ -141,7 +134,7 @@ class RSMstream extends AutoProcessEmailJob
         /**
          * Successfully unsubscribed from all subscriptions.
          */
-        if (!empty($mobileNumbersWithActiveSubscription) && !empty($unsubscribedMobileNumbers)) {
+        if (! empty($mobileNumbersWithActiveSubscription) && ! empty($unsubscribedMobileNumbers)) {
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::UNSUBSCRIBED);
             $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::UNSUBSCRIBED, $language));
 

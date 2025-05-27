@@ -2,15 +2,14 @@
 
 namespace App\Features\QueryEmail;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class QueryEmailService
 {
     /**
      * Get the email chain by incoming email query ID
-     * @param int $emailQueryId
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function getEmailChainByIncomingEmailQueryId(int $emailQueryId): Collection
@@ -23,7 +22,7 @@ class QueryEmailService
             ->where('eq.type', 'incoming')
             ->first();
 
-        if (!$emailQuery) {
+        if (! $emailQuery) {
             return collect();
         }
 

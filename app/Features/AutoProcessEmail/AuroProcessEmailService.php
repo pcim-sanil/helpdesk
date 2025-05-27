@@ -3,16 +3,15 @@
 namespace App\Features\AutoProcessEmail;
 
 use App\Features\AutoProcessEmail\Data\AutoProcessableEmailData;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class AuroProcessEmailService
 {
     /**
      * Get the emails that can be auto processed
      *
-     * @param array $smsServicesIds
-     * @param int $limit
+     * @param  array  $smsServicesIds
      * @return Collection<AutoProcessableEmailData>
      */
     public function getEmailsToBeProcessed(int $limit = 100): Collection
@@ -62,7 +61,6 @@ class AuroProcessEmailService
                         and eq.sender_email != 'producer@creativeclicks.com'
                 LIMIT $limit";
 
-        
         $results = DB::connection('helpdesk')->select($sql);
 
         return collect($results)->map(function ($result) {

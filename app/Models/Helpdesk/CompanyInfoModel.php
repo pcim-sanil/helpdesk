@@ -25,7 +25,6 @@ class CompanyInfoModel extends Model
 
     /**
      * Has many SMS Services
-     * @return HasMany
      */
     public function smsServices(): HasMany
     {
@@ -34,7 +33,6 @@ class CompanyInfoModel extends Model
 
     /**
      * Has many SMS Services Short Codes through SMS Services
-     * @return HasManyThrough
      */
     public function smsServiceShortCodes(): HasManyThrough
     {
@@ -47,10 +45,9 @@ class CompanyInfoModel extends Model
             'id'
         );
     }
-    
+
     /**
      * Has many Tickets through SMS Services
-     * @return HasManyThrough
      */
     public function tickets(): HasManyThrough
     {

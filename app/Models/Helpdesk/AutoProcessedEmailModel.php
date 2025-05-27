@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AutoProcessedEmailModel extends Model
 {
     protected $connection = 'helpdesk';
-    
+
     protected $table = 'auto_processed_email';
 
     const CREATED_AT = 'created_at';
+
     const UPDATED_AT = 'updated_at';
-    
+
     protected $fillable = [
         'query_email_id',
         'sms_services_id',
@@ -68,17 +69,16 @@ class AutoProcessedEmailModel extends Model
 
     public function replyQueryEmail(): BelongsTo
     {
-         return $this->belongsTo(QueryEmailModel::class, 'reply_query_email_id', 'id');
+        return $this->belongsTo(QueryEmailModel::class, 'reply_query_email_id', 'id');
     }
 
     /**
      * Get the unsubscribed mobile numbers. //unsubscribedForMobileNumbers
      * {"potentialMobileNumbers":["+420775098204","+420722109300","+420736166731"],"activeSubscriptionsForMobileNumbers":["+420775098204"],"unsubscribedForMobileNumbers":["+420775098204"]}
-     * @return array
      */
     public function getUnsubscribedMobileNumbers(): array
     {
-        if(empty($this->mobile_numbers['unsubscribedForMobileNumbers']) || !is_array($this->mobile_numbers['unsubscribedForMobileNumbers'])) {
+        if (empty($this->mobile_numbers['unsubscribedForMobileNumbers']) || ! is_array($this->mobile_numbers['unsubscribedForMobileNumbers'])) {
             return [];
         }
 

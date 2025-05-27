@@ -2,11 +2,10 @@
 
 namespace App\Features\AutoProcessEmail\Jobs;
 
-use App\Features\AutoProcessEmail\Jobs\AutoProcessEmailJob;
-use App\Services\LanguageDectorService;
 use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
 use App\Features\AutoProcessEmail\OddesseysmsTrait;
+use App\Services\LanguageDectorService;
 
 class SGNextBattle extends AutoProcessEmailJob
 {
@@ -14,8 +13,6 @@ class SGNextBattle extends AutoProcessEmailJob
 
     /**
      * Manual process refund.
-     *
-     * @var bool
      */
     protected bool $manualProcessRefund = true;
 
@@ -26,21 +23,16 @@ class SGNextBattle extends AutoProcessEmailJob
 
     /**
      * Get allowed languages.
-     *
-     * @return array
      */
     public function getAllowedLanguages(): array
     {
         return [
-            LanguageDectorService::ENGLISH_LANGUAGE
+            LanguageDectorService::ENGLISH_LANGUAGE,
         ];
     }
 
     /**
      * Process the email.
-     *
-     * @param array $mobileNumbers
-     * @return AutoProcessedEmailData
      */
     public function process(array $mobileNumbers): AutoProcessedEmailData
     {
@@ -96,7 +88,7 @@ class SGNextBattle extends AutoProcessEmailJob
         /**
          * Failed to unsubscribe from any subscription.
          */
-        if (!empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
+        if (! empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
 
             $autoProcessedEmailData->setProcessLog('api_error', 'Failed to unsubscribe from any subscription');
 
@@ -106,7 +98,7 @@ class SGNextBattle extends AutoProcessEmailJob
         /**
          * Successfully unsubscribed from all subscriptions.
          */
-        if (!empty($mobileNumbersWithActiveSubscription) && !empty($unsubscribedMobileNumbers)) {
+        if (! empty($mobileNumbersWithActiveSubscription) && ! empty($unsubscribedMobileNumbers)) {
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::UNSUBSCRIBED);
             $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::UNSUBSCRIBED, $language));
 

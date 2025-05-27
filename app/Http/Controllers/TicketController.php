@@ -8,7 +8,7 @@ class TicketController extends Controller
 {
     protected function checkIntent(string $content): array
     {
-        $gptService = new GptService();
+        $gptService = new GptService;
         try {
             $params = [
                 'model' => 'gpt-4o',
@@ -41,7 +41,7 @@ class TicketController extends Controller
                 return ['error' => 'No content returned from API.'];
             }
         } catch (\Exception $e) {
-            return ['error' => 'Exception occurred: ' . $e->getMessage()];
+            return ['error' => 'Exception occurred: '.$e->getMessage()];
         }
     }
 

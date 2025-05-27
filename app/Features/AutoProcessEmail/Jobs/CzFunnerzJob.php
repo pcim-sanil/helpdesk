@@ -2,12 +2,10 @@
 
 namespace App\Features\AutoProcessEmail\Jobs;
 
-use App\Features\AutoProcessEmail\Jobs\AutoProcessEmailJob;
-use App\Services\LanguageDectorService;
 use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
-use Illuminate\Support\Facades\Http;
 use App\Features\AutoProcessEmail\OddesseyBizzTrait;
+use App\Services\LanguageDectorService;
 
 class CzFunnerzJob extends AutoProcessEmailJob
 {
@@ -25,24 +23,18 @@ class CzFunnerzJob extends AutoProcessEmailJob
 
     /**
      * Get allowed languages.
-     *
-     * @return array
      */
     public function getAllowedLanguages(): array
     {
         return [
             LanguageDectorService::CZECH_LANGUAGE,
             LanguageDectorService::CROATIAN_LANGUAGE,
-            LanguageDectorService::ENGLISH_LANGUAGE
+            LanguageDectorService::ENGLISH_LANGUAGE,
         ];
     }
 
     /**
      * Get the email template.
-     *
-     * @param AutoProcessResponseTypeEnum $responseType
-     * @param string $language
-     * @return string
      */
     protected function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
     {
@@ -52,16 +44,19 @@ class CzFunnerzJob extends AutoProcessEmailJob
                 if (in_array($language, [LanguageDectorService::CZECH_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
                     return 'mail.cs.mobile-number-not-found';
                 }
+
                 return 'mail.en.mobile-number-not-found';
             case AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND:
                 if (in_array($language, [LanguageDectorService::CZECH_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
                     return 'mail.cs.subscription-not-found';
                 }
+
                 return 'mail.en.subscription-not-found';
             case AutoProcessResponseTypeEnum::UNSUBSCRIBED:
                 if (in_array($language, [LanguageDectorService::CZECH_LANGUAGE, LanguageDectorService::CROATIAN_LANGUAGE])) {
                     return 'mail.cs.unsubscribed';
                 }
+
                 return 'mail.en.unsubscribed';
             case AutoProcessResponseTypeEnum::CASE_FORWARDED:
                 return 'mail.en.case-forwarded';
@@ -72,14 +67,11 @@ class CzFunnerzJob extends AutoProcessEmailJob
 
     /**
      * Process the email.
-     *
-     * @param array $mobileNumbers
-     * @return AutoProcessedEmailData
      */
     public function process(array $mobileNumbers): AutoProcessedEmailData
     {
         $autoProcessedEmailData = AutoProcessedEmailData::fromAutoProcessableEmailData($this->autoProcessableEmailData);
-        
+
         /**
          * Detect language.
          */
@@ -87,7 +79,6 @@ class CzFunnerzJob extends AutoProcessEmailJob
         $autoProcessedEmailData->setProcessLog('detected_language', $language);
         $language = in_array($language, $this->getAllowedLanguages()) ? $language : LanguageDectorService::ENGLISH_LANGUAGE;
         $autoProcessedEmailData->setProcessLog('fallback_language', $language);
-
 
         /**
          * No mobile numbers, send reply
@@ -109,7 +100,7 @@ class CzFunnerzJob extends AutoProcessEmailJob
         /**
          * Fetch subscriptions for each mobile number.
          */
-         $autoProcessedEmailData = $this->fetchSubscriptionsForMobileNumbers($autoProcessedEmailData, $mobileNumbers);
+        $autoProcessedEmailData = $this->fetchSubscriptionsForMobileNumbers($autoProcessedEmailData, $mobileNumbers);
 
         /**
          * No active subscription, send reply
@@ -138,7 +129,7 @@ class CzFunnerzJob extends AutoProcessEmailJob
         /**
          * Failed to unsubscribe from any subscription.
          */
-        if (!empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
+        if (! empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
 
             $autoProcessedEmailData->setProcessLog('api_error', 'Failed to unsubscribe from any subscription');
 
@@ -148,7 +139,7 @@ class CzFunnerzJob extends AutoProcessEmailJob
         /**
          * Successfully unsubscribed from all subscriptions.
          */
-        if (!empty($mobileNumbersWithActiveSubscription) && !empty($unsubscribedMobileNumbers)) {
+        if (! empty($mobileNumbersWithActiveSubscription) && ! empty($unsubscribedMobileNumbers)) {
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::UNSUBSCRIBED);
             $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::UNSUBSCRIBED, $language));
 

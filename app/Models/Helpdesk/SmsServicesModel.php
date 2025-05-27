@@ -25,7 +25,6 @@ class SmsServicesModel extends Model
 
     /**
      * Belongs to Company Info
-     * @return BelongsTo
      */
     public function companyInfo(): BelongsTo
     {
@@ -34,7 +33,6 @@ class SmsServicesModel extends Model
 
     /**
      * Has many Tickets
-     * @return HasMany
      */
     public function tickets(): HasMany
     {
@@ -43,7 +41,6 @@ class SmsServicesModel extends Model
 
     /**
      * Has many SMS Service Short Codes
-     * @return HasMany
      */
     public function smsServiceShortCodes(): HasMany
     {

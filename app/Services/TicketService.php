@@ -6,8 +6,6 @@ class TicketService
 {
     /**
      * Get the status options
-     *
-     * @return array
      */
     public static function getStatusOptions(): array
     {
@@ -19,11 +17,9 @@ class TicketService
             '4' => 'Escalated to Vendor',
         ];
     }
-  
+
     /**
      * Get the enquiry type options
-     *
-     * @return array
      */
     public static function getEnquiryTypeOptions(): array
     {
@@ -42,9 +38,6 @@ class TicketService
 
     /**
      * Get the label for the enquiry type
-     *
-     * @param int $enqueryType
-     * @return string
      */
     public static function getEnquiryTypeLabel(int $enqueryType): string
     {

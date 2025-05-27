@@ -35,6 +35,5 @@ class AutoProcessableEmailData extends Data
         public ?string $job_class,
         public ?array $detect_languages,
         public ?array $forward_to
-    ) {
-    }
+    ) {}
 }

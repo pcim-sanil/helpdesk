@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 class User extends Authenticatable
 {
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_INACTIVE = 'inactive';
 
     /** @use HasFactory<\Database\Factories\UserFactory> */

@@ -2,17 +2,18 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Services\GptService;
+use Livewire\Component;
 
 class EmailAnalyzer extends Component
 {
     public $emailContent = '';
+
     public $analysisResult = null;
 
     public function analyzeEmail()
     {
-        $gptService = new GptService();
+        $gptService = new GptService;
         try {
             $params = [
                 'model' => 'gpt-4o',
@@ -44,7 +45,7 @@ class EmailAnalyzer extends Component
                 $this->analysisResult = ['error' => 'No content returned from API.'];
             }
         } catch (\Exception $e) {
-            $this->analysisResult = ['error' => 'Exception occurred: ' . $e->getMessage()];
+            $this->analysisResult = ['error' => 'Exception occurred: '.$e->getMessage()];
         }
     }
 
