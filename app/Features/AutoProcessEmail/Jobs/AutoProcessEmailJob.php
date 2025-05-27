@@ -43,6 +43,7 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
      * @var bool
      */
     protected bool $detectIntent = true;
+    protected bool $manualProcessRefund = false;
 
     /**
      * Create a new job instance.v 
@@ -302,6 +303,12 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
             $autoProcessedEmail->intents = $autoProcessedEmailData->intents;
 
             if ($autoProcessedEmail->save()) {
+
+                // if manual process refund is true, do not send the email
+                if($this->manualProcessRefund && in_array('refund', $autoProcessedEmailData->getIntents())) {
+                    return;
+                }
+
                 try {
                     // Create outgoing query email
                     $outgoingEmailQuery = $this->createOutgoingQueryEmail($autoProcessedEmailData);
@@ -470,30 +477,31 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
             $autoProcessedEmailData = $this->process($mobileNumbers);
 
-            $this->logAutoProcessedEmail($autoProcessedEmailData);
-
-            // if not forwarded, check intent and language
-            if (
-                $this->detectIntent
-                && ($autoProcessedEmailData->response_type != AutoProcessResponseTypeEnum::CASE_FORWARDED)
-                && (!empty($mobileNumbers) || $this->wasAutoProcessed())
-            ) {
+            // Check the intent of the email
+            if($this->detectIntent) {
                 try {
-                    $intents = $this->checkIntent($emailContent);
-                    $intent = $intents['intent'] ?? [];
-                    if (in_array('refund', $intent)) {
-                        $autoProcessedEmailData = $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
-
-                        $autoProcessedEmailData->setIntents($intents);
-                        
-                        $this->logAutoProcessedEmail($autoProcessedEmailData);
-                    }
+                    $gptResponse = $this->checkIntent($emailContent);
+                    $autoProcessedEmailData->setIntents($gptResponse['intent'] ?? []);
                 } catch (Throwable $e) {
                     Log::channel('email_processing')->error('Failed to check intent', [
                         'email_id' => $this->autoProcessableEmailData->id,
                         'error' => $e->getMessage(),
                     ]);
                 }
+            }
+
+            $this->logAutoProcessedEmail($autoProcessedEmailData);
+
+
+            // Forward the refund email to the refund team
+            if (
+                !$this->manualProcessRefund
+                && ($autoProcessedEmailData->response_type != AutoProcessResponseTypeEnum::CASE_FORWARDED)
+                && (!empty($mobileNumbers) || $this->wasAutoProcessed())
+                && in_array('refund', $autoProcessedEmailData->getIntents())
+            ) {
+                $autoProcessedEmailData = $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);                        
+                $this->logAutoProcessedEmail($autoProcessedEmailData);
             }
 
             Log::channel('email_processing')->info('Successfully processed email', [

@@ -12,6 +12,13 @@ class SGNextBattle extends AutoProcessEmailJob
 {
     use OddesseysmsTrait;
 
+    /**
+     * Manual process refund.
+     *
+     * @var bool
+     */
+    protected bool $manualProcessRefund = true;
+
     public function getBaseUri(): string
     {
         return 'https://oddesseysms.nl/sg1';
