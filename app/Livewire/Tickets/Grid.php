@@ -9,7 +9,9 @@ use Illuminate\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\TicketService;
 use Livewire\Attributes\Url;
-class TicketList extends Component
+use Illuminate\Support\Facades\Log;
+
+class Grid extends Component
 {
     use WithPagination;
 
@@ -86,6 +88,15 @@ class TicketList extends Component
     #[Url(history: true)]
     public ?int $isHighPriority = null;
 
+
+    /**
+     * The ticket id to show
+     *
+     * @var int|null
+     */
+    #[Url(history: true)]
+    public ?int $showingTicketId = null;
+
     /**
      * Get the date range options
      *
@@ -155,6 +166,12 @@ class TicketList extends Component
         $enquiryTypes = TicketService::getEnquiryTypeOptions();
 
         return ['all' => 'All Types'] + $enquiryTypes;
+    }
+
+    public function showTicket(int $ticketId): void
+    {
+        $this->showingTicketId = $ticketId;
+        $this->skipRender();
     }
 
     /**
@@ -255,7 +272,9 @@ class TicketList extends Component
     {
         $tickets = $this->getTickets();
 
-        return view('livewire.tickets.ticket-list', [
+        Log::info(count($tickets));
+
+        return view('livewire.tickets.grid', [
             'tickets' => $tickets,
         ]);
     }
