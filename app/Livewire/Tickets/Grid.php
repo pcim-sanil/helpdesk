@@ -10,7 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\TicketService;
 use Livewire\Attributes\Url;
 use Illuminate\Support\Facades\Log;
-
+use App\Livewire\Tickets\Events;
 class Grid extends Component
 {
     use WithPagination;
@@ -168,9 +168,15 @@ class Grid extends Component
         return ['all' => 'All Types'] + $enquiryTypes;
     }
 
+    /**
+     * Show the ticket
+     *
+     * @param int $ticketId
+     * @return void
+     */
     public function showTicket(int $ticketId): void
     {
-        $this->showingTicketId = $ticketId;
+        $this->dispatch(Events::ShowTicket->value, $ticketId);
         $this->skipRender();
     }
 

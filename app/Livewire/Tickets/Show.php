@@ -4,24 +4,16 @@ namespace App\Livewire\Tickets;
 
 use Livewire\Component;
 use App\Models\Helpdesk\TicketModel;
+use Livewire\Attributes\On;
 
 class Show extends Component
 {
-    public ?int $ticketId = null;
     public ?TicketModel $ticket = null;
 
-    public function mount(?int $ticketId): void
+    #[On(Events::ShowTicket->value)] 
+    public function showTicket(int $ticketId): void
     {
-        $this->ticketId = $ticketId;
-
-        if ($this->ticketId) {
-            $this->loadTicket();
-        }
-    }
-
-    public function loadTicket(): void
-    {
-        $this->ticket = TicketModel::find($this->ticketId);
+        $this->ticket = TicketModel::find($ticketId);
     }
 
     public function render()

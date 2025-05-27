@@ -1,3 +1,4 @@
+<div>
 <div class="p-4 bg-white dark:bg-zinc-900 shadow-sm">
     <!-- Filters Section -->
     <div class="mb-6">
@@ -73,7 +74,7 @@
     </div>
 
     <!-- Table Section with Loading Overlay -->
-    <div class="relative overflow-x-auto relative">
+    <div class="relative overflow-x-auto">
         <!-- Centered Flux Icon Loading Spinner -->
         <div wire:loading.delay wire:target="search, status, enquiryType, dateRange, sortBy, isHighPriority, isUrgent, perPage, nextPage, previousPage, gotoPage" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-zinc-900/60 z-10">
             <div class="h-full flex items-center justify-center">
@@ -175,12 +176,11 @@
             {{ $tickets->links() }}
         </div>
     </div>
-    
-    
+</div>
     <!-- Show Ticket Modal -->
     @if ($showingTicketId)
     <div x-data x-init="$el.scrollIntoView({ behavior: 'smooth' })">
-        <livewire:tickets.show :ticketId="$showingTicketId" key="ticket-detail-{{ $showingTicketId }}" />
+        <livewire:tickets.show />
     </div>
     @endif
 </div>
