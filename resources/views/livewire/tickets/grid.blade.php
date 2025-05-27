@@ -5,7 +5,7 @@
             <!-- Search Input -->
             <div class="relative flex-1 min-w-[200px]">
                 <flux:input kbd="⌘K" size="sm" icon="magnifying-glass" placeholder="Search..." wire:model.live.debounce.500ms="search"/>
-                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400 rounded-sm">
                     Search
                 </label>
             </div>
@@ -17,7 +17,7 @@
                     <flux:select.option value="1">Yes</flux:select.option>
                     <flux:select.option value="0">No</flux:select.option>
                 </flux:select>
-                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400 rounded-sm">
                     High Priority
                 </label>
             </div>
@@ -29,7 +29,7 @@
                     <flux:select.option value="1">Yes</flux:select.option>
                     <flux:select.option value="0">No</flux:select.option>
                 </flux:select>
-                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400 rounded-sm">
                     Urgent
                 </label>
             </div>
@@ -41,7 +41,7 @@
                         <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                     @endforeach
                 </flux:select>
-                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400 rounded-sm">
                     Status
                 </label>
             </div>
@@ -53,7 +53,7 @@
                         <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                     @endforeach
                 </flux:select>
-                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400 rounded-sm">
                     Type
                 </label>
             </div>
@@ -65,7 +65,7 @@
                         <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                     @endforeach
                 </flux:select>
-                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <label class="absolute -top-2 left-2 -mt-px px-1 bg-white dark:bg-zinc-900 text-xs font-medium text-gray-500 dark:text-gray-400 rounded-sm">
                     Date Range
                 </label>
             </div>
@@ -131,7 +131,7 @@
             </thead>
             <tbody class="bg-white dark:bg-zinc-900 divide-y divide-gray-200 dark:divide-gray-700">
                 @foreach ($tickets as $ticket)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" wire:key="ticket-{{ $ticket->ticket_id }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->ticket_id }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                             {{ App\Services\TicketService::getEnquiryTypeLabel($ticket->enquiry_type) }}
@@ -143,13 +143,13 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->operator_name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                            <flux:button size="sm" icon="eye">View</flux:button>
+                            <flux:button size="sm" icon="eye" wire:click="showTicket({{ $ticket->ticket_id }})" class="cursor-pointer">View</flux:button>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                             @if($ticket->operator_id == 0)
-                                <flux:button size="sm" wire:click="assignTicket({{ $ticket->ticket_id }})" icon="user-plus">Assign</flux:button>
+                                <flux:button size="sm" icon="user-plus">Assign</flux:button>
                             @else
-                                <flux:button size="sm" wire:click="unassignTicket({{ $ticket->ticket_id }})" icon="user-minus" variant="danger">Un-assign</flux:button>
+                                <flux:button size="sm" icon="user-minus" variant="danger">Un-assign</flux:button>
                             @endif
                         </td>
                     </tr>
@@ -174,5 +174,13 @@
         <div class="flex justify-end">
             {{ $tickets->links() }}
         </div>
-    </div>    
+    </div>
+    
+    
+    <!-- Show Ticket Modal -->
+    @if ($showingTicketId)
+    <div x-data x-init="$el.scrollIntoView({ behavior: 'smooth' })">
+        <livewire:tickets.show :ticketId="$showingTicketId" key="ticket-detail-{{ $showingTicketId }}" />
+    </div>
+    @endif
 </div>

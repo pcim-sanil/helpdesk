@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
-use App\Http\Controllers\Tickets\TicketListController;
+use App\Http\Controllers\Tickets\TicketController;
 use App\Livewire\EmailAnalyzer;
 
 Route::get('/', function () {
@@ -22,9 +22,9 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Define routes for ticket list views
-    Route::get('/tickets/open', [TicketListController::class, 'open'])->name('tickets.open');
-    Route::get('/tickets/closed', [TicketListController::class, 'closed'])->name('tickets.closed');
-    Route::get('/tickets/all', [TicketListController::class, 'all'])->name('tickets.all');
+    Route::get('/tickets/open', [TicketController::class, 'open'])->name('tickets.open');
+    Route::get('/tickets/closed', [TicketController::class, 'closed'])->name('tickets.closed');
+    Route::get('/tickets/all', [TicketController::class, 'all'])->name('tickets.all');
 });
 
 
