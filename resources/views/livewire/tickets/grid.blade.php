@@ -179,25 +179,6 @@
     </div>
     <!-- Show Ticket Modal -->
     <div class="mt-4">
-        @if($showingTicketId)
-            <div class="bg-gray-50 dark:bg-zinc-800 p-4 rounded-lg">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                        Ticket Details - ID: {{ $showingTicketId }}
-                    </h3>
-                    <flux:button size="sm" icon="x-mark" variant="ghost" wire:click="$set('showingTicketId', null)">
-                        Close
-                    </flux:button>
-                </div>
-                
-                <div class="space-y-4">
-                    <livewire:tickets.service wire:key="service-{{ $showingTicketId }}" :ticketId="$showingTicketId" />
-                    <hr/>
-                    <livewire:tickets.policy wire:key="policy-{{ $showingTicketId }}" :ticketId="$showingTicketId" />
-                    <hr/>
-                    <livewire:tickets.customer wire:key="customer-{{ $showingTicketId }}" :ticketId="$showingTicketId" />
-                </div>
-            </div>
-        @endif
+        <livewire:tickets.show-details />
     </div>
 </div>

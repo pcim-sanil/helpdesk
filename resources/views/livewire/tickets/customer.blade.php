@@ -2,8 +2,9 @@
     if (!loaded && {{ $ticketId ? 'true' : 'false' }}) {
         loaded = true;
         setTimeout(() => {
+            console.log('Loading customer data');
             $wire.loadCustomerData();
-        }, 0);
+        }, 300);
     }
 " class="relative">
 

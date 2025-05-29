@@ -7,13 +7,11 @@ use Livewire\Component;
 class Policy extends Component
 {
     public ?int $ticketId = null;
-    public bool $isLoading = false;
     public array $policyData = [];
 
     public function mount(?int $ticketId = null)
     {
         $this->ticketId = $ticketId;
-        // Don't load data in mount - let it load lazily
     }
 
     public function loadPolicyData()
@@ -22,20 +20,14 @@ class Policy extends Component
             return;
         }
 
-        $this->isLoading = true;
-        
-        // Simulate data loading - replace with actual policy data fetching
-        sleep(3); // Simulate slow loading
-        
-        // Replace this with actual database query for policy data
+        sleep(rand(1,8));
+
         $this->policyData = [
             'policy_number' => 'POL-' . $this->ticketId,
             'policy_type' => 'Comprehensive',
             'coverage' => 'Full Coverage',
             'expiry_date' => '2024-12-31'
         ];
-        
-        $this->isLoading = false;
     }
 
     public function render()

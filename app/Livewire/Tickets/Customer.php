@@ -7,7 +7,6 @@ use Livewire\Component;
 class Customer extends Component
 {
     public ?int $ticketId = null;
-    public bool $isLoading = false;
     public array $customerData = [];
 
     public function mount(?int $ticketId = null)
@@ -21,10 +20,8 @@ class Customer extends Component
         if (!$this->ticketId) {
             return;
         }        
-        // Simulate data loading - replace with actual customer data fetching
-        sleep(1); // Simulate slow loading
         
-        // Replace this with actual database query for customer data
+        sleep(rand(1,8));
         $this->customerData = [
             'customer_name' => 'John Doe',
             'email' => 'john.doe@example.com',
