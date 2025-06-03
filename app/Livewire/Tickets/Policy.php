@@ -3,31 +3,38 @@
 namespace App\Livewire\Tickets;
 
 use Livewire\Component;
+use App\Models\Helpdesk\TicketModel;
+use Illuminate\Support\Collection;
 
 class Policy extends Component
 {
-    public ?int $ticketId = null;
-    public array $policyData = [];
+    public ?int $ticketId;
+    public Collection $refundPolicies;
 
-    public function mount(?int $ticketId = null)
+    public function mount(int $ticketId)
     {
         $this->ticketId = $ticketId;
+
+
+        // fetch ticket model and store in container .
+        $ticketModel = TicketModel::query()
+            ->with(['smsService.refundPolicy', 'smsService.companyInfo.refundPolicy'])
+            ->where('ticket_id', $this->ticketId)
+            ->first();
+
+        $serviceLevelPolicy = $ticketModel->smsService->refundPolicy;
+        $companyLevelPolicy = $ticketModel->smsService->companyInfo->refundPolicy;
+
+        if($serviceLevelPolicy->count() > 0){
+            $this->refundPolicies = $serviceLevelPolicy;
+        }else{
+            $this->refundPolicies = $companyLevelPolicy;
+        }
     }
 
-    public function loadPolicyData()
+    public function placeholder()
     {
-        if (!$this->ticketId) {
-            return;
-        }
-
-        sleep(rand(1,8));
-
-        $this->policyData = [
-            'policy_number' => 'POL-' . $this->ticketId,
-            'policy_type' => 'Comprehensive',
-            'coverage' => 'Full Coverage',
-            'expiry_date' => '2024-12-31'
-        ];
+        return view('livewire.placeholders.content-holder');
     }
 
     public function render()

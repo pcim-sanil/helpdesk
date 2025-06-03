@@ -1,33 +1,27 @@
-<div x-data="{ loaded: false }" x-init="
-    if (!loaded && {{ $ticketId ? 'true' : 'false' }}) {
-        loaded = true;
-        setTimeout(() => {
-            console.log('Loading customer data');
-            $wire.loadCustomerData();
-        }, 300);
-    }
-" class="relative">
+<flux:callout>
+    <flux:callout.heading icon="user" icon:variant="outline">
+        Customer Details
+    </flux:callout.heading>
+    <flux:separator />
+    <flux:callout.text>
+        @if (!empty($customerData))
+            <flux:fieldset>
+                <div class="space-y-6">
+                    <flux:input label="Street address line 1" placeholder="123 Main St" class="max-w-sm" />
+                    <flux:input label="Street address line 2" placeholder="Apartment, studio, or floor"
+                        class="max-w-sm" />
 
-        <!-- Loading State -->
-        <div wire:loading wire:target="loadCustomerData" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-zinc-900/60 z-10">
-            <div class="flex items-center space-x-2">
-                <flux:icon.loading class="w-5 h-5 text-gray-500 dark:text-gray-300" />
-                <span class="text-sm text-gray-500 dark:text-gray-300">Loading customer details...</span>
-            </div>
-        </div>
-    <div class="p-4 bg-white dark:bg-zinc-900 shadow-sm rounded-md">
-        <!-- Content -->
-            <div wire:loading.remove wire:target="loadCustomerData" class="space-y-2">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Customer Details</h2>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-6">
+                        <flux:input label="City" placeholder="San Francisco" />
+                        <flux:input label="State / Province" placeholder="CA" />
+                        <flux:input label="Postal / Zip code" placeholder="12345" />
+                        <flux:select label="Country">
+                            <option selected>United States</option>
+                            <!-- ... -->
+                        </flux:select>
+                    </div>
                 </div>
-                <p class="text-sm"><span class="font-medium">Ticket ID:</span> {{ $ticketId }}</p>
-                @if(!empty($customerData))
-                    <p class="text-sm"><span class="font-medium">Customer Name:</span> {{ $customerData['customer_name'] ?? 'N/A' }}</p>
-                    <p class="text-sm"><span class="font-medium">Email:</span> {{ $customerData['email'] ?? 'N/A' }}</p>
-                    <p class="text-sm"><span class="font-medium">Phone:</span> {{ $customerData['phone'] ?? 'N/A' }}</p>
-                    <p class="text-sm"><span class="font-medium">Address:</span> {{ $customerData['address'] ?? 'N/A' }}</p>
-                @endif
-            </div>
-    </div>
-</div>
+            </flux:fieldset>
+        @endif
+    </flux:callout.text>
+</flux:callout>

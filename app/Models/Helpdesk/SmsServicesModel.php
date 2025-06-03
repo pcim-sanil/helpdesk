@@ -5,6 +5,7 @@ namespace App\Models\Helpdesk;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Helpdesk\RefundPolicyModel;
 
 class SmsServicesModel extends Model
 {
@@ -45,5 +46,13 @@ class SmsServicesModel extends Model
     public function smsServiceShortCodes(): HasMany
     {
         return $this->hasMany(SmsServiceShortCodeModel::class, 'sms_service_id', 'id');
+    }
+
+    /**
+     * Has many Refund Policies
+     */
+    public function refundPolicy(): HasMany
+    {
+        return $this->hasMany(RefundPolicyModel::class, 'sms_services_id', 'id');
     }
 }

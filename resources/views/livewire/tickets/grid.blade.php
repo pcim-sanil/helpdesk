@@ -135,7 +135,7 @@
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" wire:key="ticket-{{ $ticket->ticket_id }}">
                             <td class="p-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->ticket_id }}</td>
                             <td class="p-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                {{ App\Services\TicketService::getEnquiryTypeLabel($ticket->enquiry_type) }}
+                                {{ App\Features\Ticket\TicketService::getEnquiryTypeLabel($ticket->enquiry_type) }}
                             </td>
                             <td class="p-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->company_name }}</td>
                             <td class="p-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->caller_info_mobile }}</td>

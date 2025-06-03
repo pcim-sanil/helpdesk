@@ -5,7 +5,7 @@ namespace App\Models\Helpdesk;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-
+use App\Models\Helpdesk\RefundPolicyModel;
 class CompanyInfoModel extends Model
 {
     // Define the connection
@@ -59,5 +59,15 @@ class CompanyInfoModel extends Model
             'id',
             'service_1300'
         );
+    }
+    
+    /**
+     * Has many Refund Policies
+     * 
+     * @return HasMany
+     */
+    public function refundPolicy(): HasMany
+    {
+        return $this->hasMany(RefundPolicyModel::class, 'company_id', 'id');
     }
 }

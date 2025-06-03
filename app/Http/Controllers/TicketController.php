@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Features\Ticket\TicketService;
 use App\Services\GptService;
 
 class TicketController extends Controller
@@ -47,6 +48,9 @@ class TicketController extends Controller
 
     public function index()
     {
-        dd('yes');
+
+        $ticket = TicketService::getTicketDetails(3033420);
+
+        dd($ticket);
     }
 }
