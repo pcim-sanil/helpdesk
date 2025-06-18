@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Features\AutoProcessEmail\Data;
+namespace App\Domains\AutoProcessEmail\Data;
 
 use Spatie\LaravelData\Data;
 

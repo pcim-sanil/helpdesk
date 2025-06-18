@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Helpdesk;
 
-use App\Features\AutoProcessEmail\AuroProcessEmailService;
+use App\Domains\AutoProcessEmail\AuroProcessEmailService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Throwable;

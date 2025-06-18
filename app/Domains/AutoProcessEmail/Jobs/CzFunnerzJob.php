@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Features\AutoProcessEmail\Jobs;
+namespace App\Domains\AutoProcessEmail\Jobs;
 
-use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
-use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
-use App\Features\AutoProcessEmail\OddesseyBizzTrait;
+use App\Domains\AutoProcessEmail\AutoProcessResponseTypeEnum;
+use App\Domains\AutoProcessEmail\Data\AutoProcessedEmailData;
+use App\Domains\AutoProcessEmail\OddesseyBizzTrait;
 use App\Services\LanguageDectorService;
 
 class CzFunnerzJob extends AutoProcessEmailJob

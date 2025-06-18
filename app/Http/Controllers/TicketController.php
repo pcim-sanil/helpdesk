@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Features\Ticket\TicketService;
+use App\Domains\Ticket\TicketService;
 use App\Services\GptService;
 
 class TicketController extends Controller

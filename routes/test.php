@@ -1,7 +1,7 @@
 <?php
 
-use App\Features\AutoProcessEmail\AuroProcessEmailService;
-use App\Features\AutoProcessEmail\Jobs\CzFunnerzJob;
+use App\Domains\AutoProcessEmail\AuroProcessEmailService;
+use App\Domains\AutoProcessEmail\Jobs\CzFunnerzJob;
 use App\Http\Controllers\TicketController;
 use App\Services\LanguageDectorService;
 use App\Services\MobileService;

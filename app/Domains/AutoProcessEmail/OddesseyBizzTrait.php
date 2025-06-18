@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Features\AutoProcessEmail;
+namespace App\Domains\AutoProcessEmail;
 
-use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
+use App\Domains\AutoProcessEmail\Data\AutoProcessedEmailData;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 

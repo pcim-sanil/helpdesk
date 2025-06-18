@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Features\AutoProcessEmail\Data;
+namespace App\Domains\AutoProcessEmail\Data;
 
-use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
+use App\Domains\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use Spatie\LaravelData\Data;
 
 class AutoProcessedEmailData extends Data

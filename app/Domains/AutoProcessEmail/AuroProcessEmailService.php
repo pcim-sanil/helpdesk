@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Features\AutoProcessEmail;
+namespace App\Domains\AutoProcessEmail;
 
-use App\Features\AutoProcessEmail\Data\AutoProcessableEmailData;
+use App\Domains\AutoProcessEmail\Data\AutoProcessableEmailData;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -48,16 +48,16 @@ class AuroProcessEmailService
                         csc.sms_services_id = ss.id
                     JOIN company_service_country as csc1 on
                         csc1.company_id = ss.company_info_id
-                    JOIN 
-                        countries as c on 
-                        c.country_code  = csc1.country_code 
+                    JOIN
+                        countries as c on
+                        c.country_code  = csc1.country_code
                 WHERE
                         eq.type = 'incoming'
                         AND t.status = '0'
                         AND t.operator_id = '0'
                         and apes.auto_process_on_helpdesk = '1'
                         and eq.id not in (select ape1.query_email_id from auto_processed_email ape1)
-                        and eq.sender_email not like 'MicrosoftExchange%' 
+                        and eq.sender_email not like 'MicrosoftExchange%'
                         and eq.sender_email != 'producer@creativeclicks.com'
                 LIMIT $limit";
 

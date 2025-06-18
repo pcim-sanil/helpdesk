@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Features\Ticket;
+namespace App\Domains\Ticket;
 
 use Illuminate\Support\Facades\DB;
-use App\Features\Ticket\Data\TicketDetailData;
+use App\Domains\Ticket\Data\TicketDetailData;
 
 class TicketService
 {
@@ -51,7 +51,7 @@ class TicketService
 
     /**
      * Get the user info for the ticket
-     * 
+     *
      * @param int $ticketId
      * @return TicketDetailData
      */

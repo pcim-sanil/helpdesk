@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Features\QueryEmail;
+namespace App\Domains\QueryEmail;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

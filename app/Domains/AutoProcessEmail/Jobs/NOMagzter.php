@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Features\AutoProcessEmail\Jobs;
+namespace App\Domains\AutoProcessEmail\Jobs;
 
-use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
-use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
-use App\Features\AutoProcessEmail\OddesseysmsTrait;
+use App\Domains\AutoProcessEmail\AutoProcessResponseTypeEnum;
+use App\Domains\AutoProcessEmail\Data\AutoProcessedEmailData;
+use App\Domains\AutoProcessEmail\OddesseysmsTrait;
 use App\Services\LanguageDectorService;
 
 class NOMagzter extends AutoProcessEmailJob

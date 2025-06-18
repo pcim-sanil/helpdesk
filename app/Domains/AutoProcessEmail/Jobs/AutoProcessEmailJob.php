@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Features\AutoProcessEmail\Jobs;
+namespace App\Domains\AutoProcessEmail\Jobs;
 
-use App\Features\AutoProcessEmail\AutoProcessException;
-use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
-use App\Features\AutoProcessEmail\Data\AutoProcessableEmailData;
-use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
-use App\Features\QueryEmail\QueryEmailService;
+use App\Domains\AutoProcessEmail\AutoProcessException;
+use App\Domains\AutoProcessEmail\AutoProcessResponseTypeEnum;
+use App\Domains\AutoProcessEmail\Data\AutoProcessableEmailData;
+use App\Domains\AutoProcessEmail\Data\AutoProcessedEmailData;
+use App\Domains\QueryEmail\QueryEmailService;
 use App\Models\Helpdesk\AutoProcessedEmailModel;
 use App\Models\Helpdesk\QueryEmailModel;
 use App\Models\Helpdesk\TicketModel;
