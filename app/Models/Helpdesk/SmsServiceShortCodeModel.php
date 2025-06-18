@@ -25,7 +25,6 @@ class SmsServiceShortCodeModel extends Model
 
     /**
      * Belongs to SMS Service
-     * @return BelongsTo
      */
     public function smsService(): BelongsTo
     {
@@ -34,7 +33,6 @@ class SmsServiceShortCodeModel extends Model
 
     /**
      * Belongs to Company Info through SMS Service
-     * @return HasOneThrough
      */
     public function companyInfo(): HasOneThrough
     {

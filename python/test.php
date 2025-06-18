@@ -1,7 +1,5 @@
 <?php
 
-
-
 function detectLanguage(?string $text, array $allowedLanguages = ['en']): string
 {
     if (empty($text)) {
@@ -13,16 +11,16 @@ function detectLanguage(?string $text, array $allowedLanguages = ['en']): string
 
     $allowed_languages_str = escapeshellarg(implode(',', $allowedLanguages));
 
-    $pythonPath = __DIR__ . '/detect_language.py';
+    $pythonPath = __DIR__.'/detect_language.py';
 
-    if (!file_exists($pythonPath)) {
+    if (! file_exists($pythonPath)) {
         return 'en';
     }
 
-    $command = "python3 " . $pythonPath . " " . $escaped_text . " " . $allowed_languages_str;
+    $command = 'python3 '.$pythonPath.' '.$escaped_text.' '.$allowed_languages_str;
     $output = trim(shell_exec($command));
 
-    return !empty($output) ? $output : 'en';
+    return ! empty($output) ? $output : 'en';
 }
 
 // The text you want to detect the language for
@@ -38,6 +36,6 @@ Vennlig hilsen,
 Kundeservice';
 
 // Run the Python script and capture the output
-$language = detectLanguage($text, ['sr','hr','fr', 'it', 'en','no','cs']);
+$language = detectLanguage($text, ['sr', 'hr', 'fr', 'it', 'en', 'no', 'cs']);
 
 echo "Detected language code: $language\n";

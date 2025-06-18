@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Features\AutoProcessEmail;
+namespace App\Domains\AutoProcessEmail;
 
 use Exception;
 use Throwable;
@@ -9,7 +9,7 @@ class AutoProcessException extends Exception
 {
     protected array $errors = [];
 
-    public function __construct(string $message = "", array $errors = [], int $code = 0, ?Throwable $previous = null)
+    public function __construct(string $message = '', array $errors = [], int $code = 0, ?Throwable $previous = null)
     {
         $this->errors = $errors;
         parent::__construct($message, $code, $previous);

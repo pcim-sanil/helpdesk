@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Helpdesk\UserModel;
 
 class User extends Authenticatable
 {
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_INACTIVE = 'inactive';
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -25,6 +28,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'helpdesk_user_id',
     ];
 
     /**
@@ -59,5 +63,13 @@ class User extends Authenticatable
             ->explode(' ')
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get the associated helpdesk user
+     */
+    public function helpdeskUser(): HasOne
+    {
+        return $this->hasOne(UserModel::class, 'id', 'helpdesk_user_id');
     }
 }

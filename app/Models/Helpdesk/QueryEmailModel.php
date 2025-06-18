@@ -3,8 +3,8 @@
 namespace App\Models\Helpdesk;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -33,17 +33,23 @@ class QueryEmailModel extends Model
     protected $table = 'email_queries';
 
     const CREATED_AT = 'created_date';
+
     const UPDATED_AT = 'updated_date';
 
     public const STATUS_EMAIL_QUERY_RECEIVED = 1;
+
     public const STATUS_EMAIL_QUERY_TICKET_GENERATED = 2;
+
     public const STATUS_EMAIL_QUERY_REPLY_EMAIL_SENT = 3;
+
     public const STATUS_EMAIL_QUERY_REPLY_EMAIL_FAILED_TO_SENT = 4;
 
     public const TYPE_EMAIL_QUERY_INCOMING = 'incoming';
+
     public const TYPE_EMAIL_QUERY_OUTGOING = 'outgoing';
+
     public const TYPE_EMAIL_QUERY_DRAFT = 'draft';
-    
+
     public function autoProcessedEmails(): HasMany
     {
         return $this->hasMany(AutoProcessedEmailModel::class, 'query_email_id', 'id');

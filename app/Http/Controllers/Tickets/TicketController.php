@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tickets;
 
 use App\Http\Controllers\Controller;
 use Illuminate\View\View;
-use App\Models\Ticket;
 
 class TicketController extends Controller
 {

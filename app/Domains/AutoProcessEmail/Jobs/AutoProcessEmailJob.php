@@ -1,61 +1,60 @@
 <?php
 
-namespace App\Features\AutoProcessEmail\Jobs;
+namespace App\Domains\AutoProcessEmail\Jobs;
 
+use App\Domains\AutoProcessEmail\AutoProcessException;
+use App\Domains\AutoProcessEmail\AutoProcessResponseTypeEnum;
+use App\Domains\AutoProcessEmail\Data\AutoProcessableEmailData;
+use App\Domains\AutoProcessEmail\Data\AutoProcessedEmailData;
+use App\Domains\QueryEmail\QueryEmailService;
+use App\Models\Helpdesk\AutoProcessedEmailModel;
+use App\Models\Helpdesk\QueryEmailModel;
+use App\Models\Helpdesk\TicketModel;
+use App\Services\GptService;
+use App\Services\LanguageDectorService;
+use App\Services\MobileService;
+use App\Services\PHPMailerService;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use App\Features\AutoProcessEmail\Data\AutoProcessableEmailData;
-use Throwable;
-use App\Services\MobileService;
-use App\Services\LanguageDectorService;
-use App\Models\Helpdesk\AutoProcessedEmailModel;
-use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
 use Illuminate\Support\Facades\View;
-use App\Services\PHPMailerService;
-use Carbon\Carbon;
 use Illuminate\Support\HtmlString;
 use Mews\Purifier\Facades\Purifier;
-use App\Models\Helpdesk\QueryEmailModel;
-use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
-use App\Models\Helpdesk\TicketModel;
-use App\Features\AutoProcessEmail\AutoProcessException;
-use App\Features\QueryEmail\QueryEmailService;
-use App\Services\GptService;
+use Throwable;
 
-abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
+abstract class AutoProcessEmailJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private const CC_EMAIL = '';
 
     public $tries = 2;
+
     public int $uniqueFor = 604800;
+
     public $timeout = 300;
 
     /**
      * Detect intent and language.
-     *
-     * @var bool
      */
     protected bool $detectIntent = true;
+
     protected bool $manualProcessRefund = false;
 
     /**
-     * Create a new job instance.v 
+     * Create a new job instance.v
      *
-     * @param AutoProcessableEmailData $autoProcessableEmailData The email data to be processed
+     * @param  AutoProcessableEmailData  $autoProcessableEmailData  The email data to be processed
      */
     public function __construct(protected AutoProcessableEmailData $autoProcessableEmailData) {}
 
     /**
      * Return a unique ID to prevent duplicate processing of the same email.
-     * 
-     * @return string
      */
     public function uniqueId(): string
     {
@@ -64,8 +63,6 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Get the allowed languages for the job.
-     *
-     * @return array
      */
     public function getAllowedLanguages(): array
     {
@@ -74,20 +71,16 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Detect the language of the email.
-     *
-     * @param string $text
-     * @return string
      */
     public function detectLanguage(string $text): string
     {
-        $languageDetector = new LanguageDectorService();
+        $languageDetector = new LanguageDectorService;
+
         return $languageDetector->detectLanguage($text, $this->getAllowedLanguages());
     }
 
     /**
      * Get the sender email preview to append to the respone email with reply email to the sender.
-     *
-     * @return string
      */
     private function getSenderEmailPreview(): string
     {
@@ -99,17 +92,17 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
             // 2) Sanitize incoming HTML, allowing only basic tags & safe attributes
             $allowed = [
-                'HTML.Allowed'          => 'p,br,strong,em,b,i,ul,ol,li,div,hr,h1,h2,h3,h4,h5,h6,a[href|title]',
+                'HTML.Allowed' => 'p,br,strong,em,b,i,ul,ol,li,div,hr,h1,h2,h3,h4,h5,h6,a[href|title]',
                 'AutoFormat.AutoParagraph' => false,
-                'AutoFormat.RemoveEmpty'   => true,
+                'AutoFormat.RemoveEmpty' => true,
             ];
             $cleanContent = Purifier::clean($this->autoProcessableEmailData->email_content, $allowed);
 
             // 3) Render the Blade partial with safe, escaped data
             return view('mail.partials.sender_preview', [
-                'sender'  => e($this->autoProcessableEmailData->sender_email),
-                'sent'    => $sentAt,
-                'to'      => e($this->autoProcessableEmailData->receiver_email),
+                'sender' => e($this->autoProcessableEmailData->sender_email),
+                'sent' => $sentAt,
+                'to' => e($this->autoProcessableEmailData->receiver_email),
                 'subject' => e($this->autoProcessableEmailData->email_subject),
                 'content' => new HtmlString($cleanContent),
             ])->render();
@@ -125,9 +118,6 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Send an email.
-     *
-     * @param QueryEmailModel $outgoingEmailQuery
-     * @return bool
      */
     private function sendEmail(QueryEmailModel $outgoingEmailQuery): bool
     {
@@ -144,9 +134,9 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
             content: $outgoingEmailQuery->email_content,
         );
 
-        if (!$result) {
+        if (! $result) {
             throw new AutoProcessException('Failed to send an email', [
-                'process_email_errors' => 'Failed to send an email to ' . $outgoingEmailQuery->receiver_email,
+                'process_email_errors' => 'Failed to send an email to '.$outgoingEmailQuery->receiver_email,
             ]);
         }
 
@@ -155,9 +145,6 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Get a suitable mobile number to update in ticket
-     *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @return string|null
      */
     private function getSuitableMobileNumber(AutoProcessedEmailData $autoProcessedEmailData): ?string
     {
@@ -174,17 +161,13 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Close a ticket.
-     *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @return bool
      */
     private function closeTicket(AutoProcessedEmailData $autoProcessedEmailData): bool
     {
         $ticket = TicketModel::query()->find($this->autoProcessableEmailData->generated_ticket_id);
         $ticket->status = TicketModel::TICKET_STATUS_CLOSED;
         $ticket->operator_id = 10; // assign to back office support team
-        $ticket->notes = $ticket->notes . ' #' . $autoProcessedEmailData->response_type?->value ?? '';
-
+        $ticket->notes = $ticket->notes.' #'.$autoProcessedEmailData->response_type?->value ?? '';
 
         if (strpos($ticket->caller_info_mobile, '.') !== false) {
             // $ticket->caller_info_mobile = $this->getSuitableMobileNumber($autoProcessedEmailData);
@@ -217,19 +200,16 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Create an outgoing query email.
-     *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @return QueryEmailModel
      */
     private function createOutgoingQueryEmail(AutoProcessedEmailData $autoProcessedEmailData): QueryEmailModel
     {
-        $outgoingEmailQuery = new QueryEmailModel();
+        $outgoingEmailQuery = new QueryEmailModel;
         $outgoingEmailQuery->sender_email = $this->autoProcessableEmailData->receiver_email;
         $outgoingEmailQuery->cc = self::CC_EMAIL; // you may pass comma separated emails
 
         if ($autoProcessedEmailData->response_type == AutoProcessResponseTypeEnum::CASE_FORWARDED) {
             $outgoingEmailQuery->receiver_email = implode(',', $this->autoProcessableEmailData->forward_to);
-            $outgoingEmailQuery->email_subject = 'FYI :' . $this->autoProcessableEmailData->email_subject;
+            $outgoingEmailQuery->email_subject = 'FYI :'.$this->autoProcessableEmailData->email_subject;
 
             // fetch the email chain by incoming email query ID
             $emailQueryChain = QueryEmailService::getEmailChainByIncomingEmailQueryId($this->autoProcessableEmailData->query_email_id);
@@ -239,20 +219,20 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
             ])->render();
         } else {
             $outgoingEmailQuery->receiver_email = $this->autoProcessableEmailData->sender_email;
-            $outgoingEmailQuery->email_subject = 'Re:' . $this->autoProcessableEmailData->email_subject;
+            $outgoingEmailQuery->email_subject = 'Re:'.$this->autoProcessableEmailData->email_subject;
 
             /**
              * Build the email content.
              */
-            if (empty($autoProcessedEmailData->response_template_path) || !View::exists($autoProcessedEmailData->response_template_path)) {
+            if (empty($autoProcessedEmailData->response_template_path) || ! View::exists($autoProcessedEmailData->response_template_path)) {
                 throw new AutoProcessException('Invalid response template path', [
-                    'response_template_path_errors' => 'Invalid response template path: ' . $autoProcessedEmailData->response_template_path,
+                    'response_template_path_errors' => 'Invalid response template path: '.$autoProcessedEmailData->response_template_path,
                 ]);
             }
 
             $content = View::make($autoProcessedEmailData->response_template_path, [
                 'BRAND_NAME' => $this->autoProcessableEmailData->brand_name,
-                'MOBILE_NUMBER' => !empty($autoProcessedEmailData->getUnsubscribedMobileNumbers())
+                'MOBILE_NUMBER' => ! empty($autoProcessedEmailData->getUnsubscribedMobileNumbers())
                     ? implode(',', $autoProcessedEmailData->getUnsubscribedMobileNumbers())
                     : 'MSISDN',
                 'SENDER_EMAIL_PREVIEW' => $this->getSenderEmailPreview(),
@@ -276,14 +256,11 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Log the auto processed email.
-     *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @return void
      */
     public function logAutoProcessedEmail(AutoProcessedEmailData $autoProcessedEmailData): void
     {
         try {
-            $autoProcessedEmail = new AutoProcessedEmailModel();
+            $autoProcessedEmail = new AutoProcessedEmailModel;
 
             $autoProcessedEmail->query_email_id = $autoProcessedEmailData->query_email_id;
             $autoProcessedEmail->sms_services_id = $autoProcessedEmailData->sms_services_id;
@@ -305,7 +282,7 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
             if ($autoProcessedEmail->save()) {
 
                 // if manual process refund is true, do not send the email
-                if($this->manualProcessRefund && in_array('refund', $autoProcessedEmailData->getIntents())) {
+                if ($this->manualProcessRefund && in_array('refund', $autoProcessedEmailData->getIntents())) {
                     return;
                 }
 
@@ -348,17 +325,11 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Process the email.
-     *
-     * @param array $mobileNumbers
-     * @return AutoProcessedEmailData
      */
     abstract public function process(array $mobileNumbers): AutoProcessedEmailData;
 
     /**
      * Normalize the mobile number.
-     *
-     * @param string $msisdn
-     * @return string
      */
     protected function normalize(string $msisdn): string
     {
@@ -367,21 +338,16 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Check if the email was auto processed.
-     *
-     * @return bool
      */
     protected function wasAutoProcessed(): bool
     {
         $wasAutoProcessed = $this->autoProcessableEmailData->no_of_auto_processed ?? 0;
+
         return $wasAutoProcessed > 0;
     }
 
     /**
      * Get the email template.
-     *
-     * @param AutoProcessResponseTypeEnum $responseType
-     * @param string $language
-     * @return string
      */
     protected function getEmailTemplate(AutoProcessResponseTypeEnum $responseType, string $language = LanguageDectorService::ENGLISH_LANGUAGE): string
     {
@@ -401,9 +367,6 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Prepare the auto processed email data for forwarding.
-     *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @return AutoProcessedEmailData
      */
     protected function prepareAutoProcessedEmailDataForForwarding(AutoProcessedEmailData $autoProcessedEmailData): AutoProcessedEmailData
     {
@@ -415,13 +378,10 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Check intent and language.
-     *
-     * @param string $content
-     * @return array
      */
     protected function checkIntent(string $content): array
     {
-        $gptService = new GptService();
+        $gptService = new GptService;
         try {
             $params = [
                 'model' => 'gpt-4o',
@@ -454,15 +414,12 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
                 return ['error' => 'No content returned from API.'];
             }
         } catch (\Exception $e) {
-            return ['error' => 'Exception occurred: ' . $e->getMessage()];
+            return ['error' => 'Exception occurred: '.$e->getMessage()];
         }
     }
 
-
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(MobileService $mobileService): void
     {
@@ -472,13 +429,13 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
             ]);
 
             // scan the email content for mobile numbers
-            $emailContent = $this->autoProcessableEmailData->email_subject . ' ' . $this->autoProcessableEmailData->email_content;
+            $emailContent = $this->autoProcessableEmailData->email_subject.' '.$this->autoProcessableEmailData->email_content;
             $mobileNumbers = $mobileService->extractMobiles($emailContent, $this->autoProcessableEmailData->country_iso_alpha2);
 
             $autoProcessedEmailData = $this->process($mobileNumbers);
 
             // Check the intent of the email
-            if($this->detectIntent) {
+            if ($this->detectIntent) {
                 try {
                     $gptResponse = $this->checkIntent($emailContent);
                     $autoProcessedEmailData->setIntents($gptResponse['intent'] ?? []);
@@ -492,15 +449,14 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
             $this->logAutoProcessedEmail($autoProcessedEmailData);
 
-
             // Forward the refund email to the refund team
             if (
-                !$this->manualProcessRefund
+                ! $this->manualProcessRefund
                 && ($autoProcessedEmailData->response_type != AutoProcessResponseTypeEnum::CASE_FORWARDED)
-                && (!empty($mobileNumbers) || $this->wasAutoProcessed())
+                && (! empty($mobileNumbers) || $this->wasAutoProcessed())
                 && in_array('refund', $autoProcessedEmailData->getIntents())
             ) {
-                $autoProcessedEmailData = $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);                        
+                $autoProcessedEmailData = $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
                 $this->logAutoProcessedEmail($autoProcessedEmailData);
             }
 
@@ -521,9 +477,6 @@ abstract class AutoProcessEmailJob implements ShouldQueue, ShouldBeUnique
 
     /**
      * Handle a job failure.
-     *
-     * @param Throwable $exception
-     * @return void
      */
     public function failed(Throwable $exception): void
     {

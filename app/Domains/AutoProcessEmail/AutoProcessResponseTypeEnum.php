@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Features\AutoProcessEmail;
+namespace App\Domains\AutoProcessEmail;
 
 enum AutoProcessResponseTypeEnum: string
 {

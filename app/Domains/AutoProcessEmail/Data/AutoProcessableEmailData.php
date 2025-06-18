@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Features\AutoProcessEmail\Data;
+namespace App\Domains\AutoProcessEmail\Data;
 
 use Spatie\LaravelData\Data;
 
@@ -35,6 +35,5 @@ class AutoProcessableEmailData extends Data
         public ?string $job_class,
         public ?array $detect_languages,
         public ?array $forward_to
-    ) {
-    }
+    ) {}
 }

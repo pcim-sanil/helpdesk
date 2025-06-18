@@ -1,15 +1,14 @@
 <?php
-
 namespace App\Livewire\Tickets;
 
+use App\Domains\Ticket\TicketService;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
-use Illuminate\Pagination\LengthAwarePaginator;
-use App\Services\TicketService;
-use Livewire\Attributes\Url;
-use Illuminate\Support\Facades\Log;
 
 class Grid extends Component
 {
@@ -17,8 +16,6 @@ class Grid extends Component
 
     /**
      * The number of tickets to show per page
-     *
-     * @var int
      */
     #[Url(history: true)]
     public int $perPage = 5;
@@ -26,47 +23,36 @@ class Grid extends Component
     /**
      * The column to sort by
      *t
-     * @var string
      */
     #[Url(history: true)]
     public string $sortColumn = 'tickets.ticket_id';
 
     /**
      * The direction to sort by
-     *
-     * @var string
      */
     #[Url(history: true)]
     public string $sortDirection = 'desc';
 
     /**
      * The search query
-     *
-     * @var string
      */
     #[Url(history: true)]
     public string $search = '';
 
     /**
      * The status of the tickets
-     *
-     * @var string
      */
     #[Url(history: true)]
     public ?string $status = null;
 
     /**
      * The operator of the tickets
-     *
-     * @var string
      */
     #[Url(history: true)]
     public ?string $dateRange = 'last_3_months';
 
     /**
      * The enquiry type filter
-     *
-     * @var string|null
      */
     #[Url(history: true)]
     public ?string $enquiryType = null;
@@ -79,7 +65,6 @@ class Grid extends Component
     #[Url(history: true)]
     public ?int $isUrgent = null;
 
-
     /**
      * The high priority filter
      *
@@ -88,19 +73,8 @@ class Grid extends Component
     #[Url(history: true)]
     public ?int $isHighPriority = null;
 
-
-    /**
-     * The ticket id to show
-     *
-     * @var int|null
-     */
-    #[Url(history: true)]
-    public ?int $showingTicketId = null;
-
     /**
      * Get the date range options
-     *
-     * @return array
      */
     public function getDateRangeOptions(): array
     {
@@ -115,8 +89,6 @@ class Grid extends Component
 
     /**
      * Reset pagination when date range changes
-     *
-     * @return void
      */
     public function resetPagination(): void
     {
@@ -134,7 +106,6 @@ class Grid extends Component
     /**
      * Sort the tickets by a column
      *
-     * @param string $field
      * @return void
      */
     public function sortBy(string $field)
@@ -146,8 +117,6 @@ class Grid extends Component
 
     /**
      * Get the status options
-     *
-     * @return array
      */
     public function getStatusOptions(): array
     {
@@ -158,8 +127,6 @@ class Grid extends Component
 
     /**
      * Get the enquiry type options
-     *
-     * @return array
      */
     public function getEnquiryTypeOptions(): array
     {
@@ -168,16 +135,17 @@ class Grid extends Component
         return ['all' => 'All Types'] + $enquiryTypes;
     }
 
+    /**
+     * Show the ticket
+     */
     public function showTicket(int $ticketId): void
     {
-        $this->showingTicketId = $ticketId;
+        $this->dispatch(Events::ShowTicket->value, $ticketId);
         $this->skipRender();
     }
 
     /**
      * Get the tickets
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     private function getTickets(): LengthAwarePaginator
     {
@@ -265,8 +233,6 @@ class Grid extends Component
 
     /**
      * Render the component
-     *
-     * @return \Illuminate\View\View
      */
     public function render(): View
     {

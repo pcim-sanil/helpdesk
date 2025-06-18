@@ -4,15 +4,19 @@ namespace App\Models\Helpdesk;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class TicketModel extends Model
 {
-
     public const TICKET_STATUS_OPEN = '0';
+
     public const TICKET_STATUS_CLOSED = '1';
+
     public const TICKET_STATUS_ESCLATE = '2';
+
     public const TICKET_STATUS_PENDING = '3';
+
     public const TICKET_STATUS_ESCLATE_TO_VENDOR = '4';
 
     // Define the connection
@@ -32,7 +36,6 @@ class TicketModel extends Model
 
     /**
      * Belongs to SMS Service
-     * @return BelongsTo
      */
     public function smsService(): BelongsTo
     {
@@ -41,7 +44,6 @@ class TicketModel extends Model
 
     /**
      * Belongs to Company Info through SMS Service
-     * @return HasOneThrough
      */
     public function companyInfo(): HasOneThrough
     {
@@ -50,7 +52,6 @@ class TicketModel extends Model
 
     /**
      * Has one sms service short code
-     * @return BelongsTo
      */
     public function smsServiceShortCode(): BelongsTo
     {
@@ -59,10 +60,17 @@ class TicketModel extends Model
 
     /**
      * Operator user who created or handles the ticket.
-     * @return BelongsTo
      */
     public function operator(): BelongsTo
     {
         return $this->belongsTo(UserModel::class, 'operator_id', 'id');
+    }
+
+    /**
+     * Has many Notes
+     */
+    public function notes(): HasMany
+    {
+        return $this->hasMany(NotesModel::class, 'ticket_id', 'ticket_id');
     }
 }

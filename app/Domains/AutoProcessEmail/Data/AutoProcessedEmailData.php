@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Features\AutoProcessEmail\Data;
+namespace App\Domains\AutoProcessEmail\Data;
 
+use App\Domains\AutoProcessEmail\AutoProcessResponseTypeEnum;
 use Spatie\LaravelData\Data;
-use App\Features\AutoProcessEmail\AutoProcessResponseTypeEnum;
 
 class AutoProcessedEmailData extends Data
 {
@@ -102,12 +102,12 @@ class AutoProcessedEmailData extends Data
 
     public function setSubscriptionsResponse(string $mobileNumber, mixed $subscriptionsResponse): void
     {
-        $this->subscriptions_response[$mobileNumber]=$subscriptionsResponse;
+        $this->subscriptions_response[$mobileNumber] = $subscriptionsResponse;
     }
 
     public function setUnsubscribeResponse(string $mobileNumber, mixed $unsubscribeResponse): void
     {
-        $this->unsubscribe_response[$mobileNumber]=$unsubscribeResponse;
+        $this->unsubscribe_response[$mobileNumber] = $unsubscribeResponse;
     }
 
     public function setReplyQueryEmailId(int $replyQueryEmailId): void
@@ -124,7 +124,7 @@ class AutoProcessedEmailData extends Data
     {
         $this->process_log[$key] = $value;
     }
-    
+
     public function getProcessLog(): array
     {
         return $this->process_log;
@@ -145,7 +145,7 @@ class AutoProcessedEmailData extends Data
         $this->intents = $intents;
     }
 
-    public function getIntents(): array 
+    public function getIntents(): array
     {
         return $this->intents;
     }

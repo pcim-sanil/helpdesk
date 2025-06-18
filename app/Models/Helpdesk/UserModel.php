@@ -3,8 +3,9 @@
 namespace App\Models\Helpdesk;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
 
 class UserModel extends Model
 {
@@ -19,7 +20,7 @@ class UserModel extends Model
 
     // does not have created_at or updated_at
     public $timestamps = false;
-    
+
     protected $casts = [
         'autotimestamp' => 'datetime',
         'last_login' => 'datetime',
@@ -29,7 +30,6 @@ class UserModel extends Model
 
     /**
      * Belongs to Company Info
-     * @return BelongsTo
      */
     public function companyInfo(): BelongsTo
     {
@@ -38,10 +38,17 @@ class UserModel extends Model
 
     /**
      * Has many Tickets
-     * @return HasMany
      */
     public function tickets(): HasMany
     {
         return $this->hasMany(TicketModel::class, 'operator_id', 'id');
+    }
+
+    /**
+     * Belongs to User (Laravel app user)
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id', 'helpdesk_user_id');
     }
 }

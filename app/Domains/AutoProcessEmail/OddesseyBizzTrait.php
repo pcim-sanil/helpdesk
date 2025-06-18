@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Features\AutoProcessEmail;
+namespace App\Domains\AutoProcessEmail;
 
-use Illuminate\Support\Facades\Http;
+use App\Domains\AutoProcessEmail\Data\AutoProcessedEmailData;
 use Illuminate\Http\Client\RequestException;
-use App\Features\AutoProcessEmail\Data\AutoProcessedEmailData;
+use Illuminate\Support\Facades\Http;
 
 trait OddesseyBizzTrait
 {
     abstract public function getBaseUri(): string;
+
     abstract public function getToken(): string;
 
     /**
@@ -24,10 +25,10 @@ trait OddesseyBizzTrait
                 ->withOptions([
                     'query' => [
                         'msisdn' => $this->normalize($mobileNumber),
-                        'token'  => $this->getToken(),
+                        'token' => $this->getToken(),
                     ],
                 ])
-                ->post($this->getBaseUri() . "/customercare_lookup.php")
+                ->post($this->getBaseUri().'/customercare_lookup.php')
                 ->throw();
 
             return $response->json();
@@ -51,10 +52,10 @@ trait OddesseyBizzTrait
                 ->withOptions([
                     'query' => [
                         'msisdn' => $this->normalize($mobileNumber),
-                        'token'  => $this->getToken(),
+                        'token' => $this->getToken(),
                     ],
                 ])
-                ->post($this->getBaseUri() . "/customercare_unsubscribe.php")
+                ->post($this->getBaseUri().'/customercare_unsubscribe.php')
                 ->throw();
 
             return $response->json();
@@ -70,14 +71,8 @@ trait OddesseyBizzTrait
         }
     }
 
-
-
     /**
      * Fetch subscriptions for mobile numbers.
-     *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @param array $mobileNumbers
-     * @return AutoProcessedEmailData
      */
     public function fetchSubscriptionsForMobileNumbers(AutoProcessedEmailData $autoProcessedEmailData, array $mobileNumbers): AutoProcessedEmailData
     {
@@ -105,9 +100,7 @@ trait OddesseyBizzTrait
     /**
      * Unsubscribe from mobile numbers.
      *
-     * @param AutoProcessedEmailData $autoProcessedEmailData
-     * @param array $mobileNumbers
-     * @return AutoProcessedEmailData
+     * @param  array  $mobileNumbers
      */
     public function unsubscribeFromMobileNumbers(AutoProcessedEmailData $autoProcessedEmailData, array $mobileNumbersWithActiveSubscription): AutoProcessedEmailData
     {
