@@ -1,7 +1,7 @@
 <?php
 namespace App\Livewire\Tickets;
 
-use App\Features\Ticket\TicketService;
+use App\Domains\Ticket\TicketService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

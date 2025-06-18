@@ -6,11 +6,11 @@
             </flux:callout.heading>
             <flux:separator />
             <flux:callout.text>
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <div class="md:col-span-3">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
                         <livewire:tickets.ticket-details :ticketId="$ticketId" :key="'ticket-details-' . $ticketId" lazy />
                     </div>
-                    <div class="md:col-span-2">
+                    <div class="lg:col-span-1">
                         <livewire:tickets.policy :ticketId="$ticketId" :key="'policy-' . $ticketId" lazy />
                     </div>
                 </div>

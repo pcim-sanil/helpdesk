@@ -9,7 +9,7 @@ use Livewire\Volt\Component;
 new class extends Component {
     public string $name = '';
     public string $email = '';
-
+    public ?int $helpdesk_user_id = null;
     /**
      * Mount the component.
      */
@@ -17,6 +17,7 @@ new class extends Component {
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->helpdesk_user_id = Auth::user()->helpdesk_user_id ?? null;
     }
 
     /**
@@ -37,6 +38,8 @@ new class extends Component {
                 'max:255',
                 Rule::unique(User::class)->ignore($user->id)
             ],
+            
+            'helpdesk_user_id' => ['nullable', 'integer'],
         ]);
 
         $user->fill($validated);
@@ -96,6 +99,23 @@ new class extends Component {
                         @endif
                     </div>
                 @endif
+            </div>
+
+            <div>
+                <flux:input 
+                    wire:model="helpdesk_user_id"
+                    :label="__('Helpdesk User ID')" 
+                    type="number" 
+                    class="bg-gray-50 dark:bg-gray-800" 
+                />
+                @error('helpdesk_user_id')
+                    <flux:text class="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {{ $message }}
+                    </flux:text>
+                @enderror
+                <flux:text class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    {{ __('Your unique identifier in the helpdesk system.') }}
+                </flux:text>
             </div>
 
             <div class="flex items-center gap-4">

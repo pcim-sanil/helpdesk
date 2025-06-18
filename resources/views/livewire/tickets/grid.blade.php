@@ -81,7 +81,7 @@
                     <flux:icon.loading class="w-6 h-6 text-gray-500 dark:text-gray-300" />
                 </div>
             </div>
-            
+
 
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-zinc-800">
@@ -135,7 +135,7 @@
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" wire:key="ticket-{{ $ticket->ticket_id }}">
                             <td class="p-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->ticket_id }}</td>
                             <td class="p-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                {{ App\Features\Ticket\TicketService::getEnquiryTypeLabel($ticket->enquiry_type) }}
+                                {{ App\Domains\Ticket\TicketService::getEnquiryTypeLabel($ticket->enquiry_type) }}
                             </td>
                             <td class="p-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->company_name }}</td>
                             <td class="p-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $ticket->caller_info_mobile }}</td>
@@ -170,7 +170,7 @@
                     <flux:select.option value="50">50</flux:select.option>
                 </flux:select>
             </div>
-        
+
             <!-- Pagination Controls -->
             <div class="flex justify-end">
                 {{ $tickets->links() }}

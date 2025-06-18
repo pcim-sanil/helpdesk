@@ -5,6 +5,7 @@ namespace App\Models\Helpdesk;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
 
 class UserModel extends Model
 {
@@ -41,5 +42,13 @@ class UserModel extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(TicketModel::class, 'operator_id', 'id');
+    }
+
+    /**
+     * Belongs to User (Laravel app user)
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id', 'helpdesk_user_id');
     }
 }

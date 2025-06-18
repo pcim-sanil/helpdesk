@@ -4,6 +4,7 @@ namespace App\Models\Helpdesk;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class TicketModel extends Model
@@ -63,5 +64,13 @@ class TicketModel extends Model
     public function operator(): BelongsTo
     {
         return $this->belongsTo(UserModel::class, 'operator_id', 'id');
+    }
+
+    /**
+     * Has many Notes
+     */
+    public function notes(): HasMany
+    {
+        return $this->hasMany(NotesModel::class, 'ticket_id', 'ticket_id');
     }
 }
