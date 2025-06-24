@@ -419,6 +419,29 @@ abstract class AutoProcessEmailJob implements ShouldBeUnique, ShouldQueue
     }
 
     /**
+     * Detect intent.
+     */
+    protected function detectIntent(AutoProcessedEmailData $autoProcessedEmailData): AutoProcessedEmailData
+    {
+        if ($this->detectIntent) {
+            try {
+                $emailContent = $this->autoProcessableEmailData->email_subject.' '.$this->autoProcessableEmailData->email_content;
+                $gptResponse = $this->checkIntent($emailContent);
+                $autoProcessedEmailData->setIntents($gptResponse['intent'] ?? []);
+            } catch (Throwable $e) {
+                $autoProcessedEmailData->setIntents([]);
+
+                Log::channel('email_processing')->error('Failed to check intent', [
+                    'email_id' => $this->autoProcessableEmailData->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $autoProcessedEmailData;
+    }
+
+    /**
      * Execute the job.
      */
     public function handle(MobileService $mobileService): void
@@ -435,17 +458,7 @@ abstract class AutoProcessEmailJob implements ShouldBeUnique, ShouldQueue
             $autoProcessedEmailData = $this->process($mobileNumbers);
 
             // Check the intent of the email
-            if ($this->detectIntent) {
-                try {
-                    $gptResponse = $this->checkIntent($emailContent);
-                    $autoProcessedEmailData->setIntents($gptResponse['intent'] ?? []);
-                } catch (Throwable $e) {
-                    Log::channel('email_processing')->error('Failed to check intent', [
-                        'email_id' => $this->autoProcessableEmailData->id,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
-            }
+            $autoProcessedEmailData = $this->detectIntent($autoProcessedEmailData);
 
             $this->logAutoProcessedEmail($autoProcessedEmailData);
 
