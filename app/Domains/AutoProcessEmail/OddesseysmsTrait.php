@@ -86,6 +86,15 @@ trait OddesseysmsTrait
                 // Mobile number with active subscription.
                 $autoProcessedEmailData->setHasActiveSubscription(true);
                 $autoProcessedEmailData->updateMobileNumberWithActiveSubscription($mobileNumber);
+                $autoProcessedEmailData->setNeverSubscribed(false);
+            } elseif (in_array($success, [true, 'true'], true) && (trim($status) === 'unsubscribed')) {
+                // Mobile number with inactive subscription.
+                $autoProcessedEmailData->setHasActiveSubscription(false);
+                $autoProcessedEmailData->updateMobileNumberWithInactiveSubscription($mobileNumber);
+                $autoProcessedEmailData->setNeverSubscribed(false);
+            } else if (in_array($success, [false, 'false'], true)) {
+                $autoProcessedEmailData->setHasActiveSubscription(false);
+                $autoProcessedEmailData->setNeverSubscribed(true);
             }
 
             $autoProcessedEmailData->setSubscriptionsResponse($mobileNumber, $subscription);

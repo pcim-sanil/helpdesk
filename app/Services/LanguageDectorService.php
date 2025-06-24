@@ -28,6 +28,8 @@ class LanguageDectorService
 
     public const SWEDISH_LANGUAGE = 'sv';
 
+    public const POLISH_LANGUAGE = 'pl';
+
     /**
      * Detect the language of the text.
      *

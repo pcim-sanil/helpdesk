@@ -24,6 +24,7 @@ class AutoProcessedEmailData extends Data
         public array $process_log = [],
         public ?bool $reply_email_sent = null,
         public array $intents = [],
+        public ?bool $never_subscribed = null,
     ) {}
 
     public static function fromAutoProcessableEmailData(AutoProcessableEmailData $autoProcessableEmailData): self
@@ -63,6 +64,16 @@ class AutoProcessedEmailData extends Data
     public function getMobileNumbersWithActiveSubscription(): array
     {
         return $this->mobile_numbers['activeSubscriptionsForMobileNumbers'] ?? [];
+    }
+
+    public function updateMobileNumberWithInactiveSubscription(string $mobileNumbersWithSubscriptions): void
+    {
+        $this->mobile_numbers['inactiveSubscriptionsForMobileNumbers'][] = $mobileNumbersWithSubscriptions;
+    }
+
+    public function getMobileNumbersWithInactiveSubscription(): array
+    {
+        return $this->mobile_numbers['inactiveSubscriptionsForMobileNumbers'] ?? [];
     }
 
     public function updateUnsubscribedMobileNumbers(string $mobileNumbersWithSubscriptions): void
@@ -148,5 +159,15 @@ class AutoProcessedEmailData extends Data
     public function getIntents(): array
     {
         return $this->intents;
+    }
+    
+    public function setNeverSubscribed(bool $neverSubscribed): void
+    {
+        $this->never_subscribed = $neverSubscribed;
+    }
+
+    public function getNeverSubscribed(): ?bool
+    {
+        return $this->never_subscribed;
     }
 }
