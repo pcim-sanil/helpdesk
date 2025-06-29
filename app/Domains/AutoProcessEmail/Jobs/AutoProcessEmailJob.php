@@ -423,6 +423,11 @@ abstract class AutoProcessEmailJob implements ShouldBeUnique, ShouldQueue
      */
     protected function detectIntent(AutoProcessedEmailData $autoProcessedEmailData): AutoProcessedEmailData
     {
+        // if intents are already detected, return the auto processed email data
+        if(!empty($autoProcessedEmailData->getIntents())) {
+            return $autoProcessedEmailData;
+        }
+
         if ($this->detectIntent) {
             try {
                 $emailContent = $this->autoProcessableEmailData->email_subject.' '.$this->autoProcessableEmailData->email_content;

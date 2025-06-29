@@ -59,6 +59,13 @@ class MyGymClubJob extends AutoProcessEmailJob
                 }
 
                 return 'mail.en.unsubscribed';
+            case AutoProcessResponseTypeEnum::REFUND_REQUESTED:
+                if (in_array($language, [LanguageDectorService::POLISH_LANGUAGE])) {
+                    return 'mail.pl.465.refund-request';
+                }
+
+                return 'mail.en.465.refund-request';
+
             case AutoProcessResponseTypeEnum::CASE_FORWARDED:
                 return 'mail.en.case-forwarded';
             default:
@@ -82,13 +89,21 @@ class MyGymClubJob extends AutoProcessEmailJob
         $autoProcessedEmailData->setProcessLog('fallback_language', $language);
 
         /**
+         * Detect intent.
+         */
+        $autoProcessedEmailData = $this->detectIntent($autoProcessedEmailData);
+
+        /**
          * No mobile numbers, send reply
          */
         if (empty($mobileNumbers)) {
 
             // Mobile number not found, prepare auto processed email data for forwarding.
-            if ($this->wasAutoProcessed()) {
-                return $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
+            if ($this->wasAutoProcessed() && in_array('refund', $autoProcessedEmailData->getIntents())) {
+                $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::REFUND_REQUESTED);
+                $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::REFUND_REQUESTED, $language));
+
+                return $autoProcessedEmailData;
             }
 
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::MOBILE_NUMBER_NOT_FOUND);
@@ -110,12 +125,6 @@ class MyGymClubJob extends AutoProcessEmailJob
         $neverSubscribed = $autoProcessedEmailData->getNeverSubscribed();
 
         if ($neverSubscribed) {
-
-            // No active subscription, prepare auto processed email data for forwarding.
-            if ($this->wasAutoProcessed()) {
-                return $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
-            }
-
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND);
             $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND, $language));
 
@@ -125,6 +134,7 @@ class MyGymClubJob extends AutoProcessEmailJob
         /**
          * Unsubscribe from each subscription.
          */
+        $unsubscribedMobileNumbers = [];
         if (!empty($mobileNumbersWithActiveSubscription)) {
             $autoProcessedEmailData = $this->unsubscribeFromMobileNumbers($autoProcessedEmailData, $mobileNumbersWithActiveSubscription);
 
@@ -133,22 +143,30 @@ class MyGymClubJob extends AutoProcessEmailJob
             /**
              * Failed to unsubscribe from any subscription.
              */
-            if (! empty($mobileNumbersWithActiveSubscription) && empty($unsubscribedMobileNumbers)) {
+            if (empty($unsubscribedMobileNumbers)) {
 
                 $autoProcessedEmailData->setProcessLog('api_error', 'Failed to unsubscribe from any subscription');
 
                 return $this->prepareAutoProcessedEmailDataForForwarding($autoProcessedEmailData);
             }
+        }
 
-            /**
-             * Successfully unsubscribed from all subscriptions.
-             */
-            if (! empty($mobileNumbersWithActiveSubscription) && ! empty($unsubscribedMobileNumbers)) {
-                $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::UNSUBSCRIBED);
-                $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::UNSUBSCRIBED, $language));
+        /**
+         * If no active subscription or unsubscribed, send reply unsubscribed.
+         */
+        if(empty($mobileNumbersWithActiveSubscription) || !empty($unsubscribedMobileNumbers)) {
+
+            if(in_array('refund', $autoProcessedEmailData->getIntents())) {
+                $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::REFUND_REQUESTED);
+                $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::REFUND_REQUESTED, $language));
 
                 return $autoProcessedEmailData;
             }
+
+            $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::UNSUBSCRIBED);
+            $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::UNSUBSCRIBED, $language));
+
+            return $autoProcessedEmailData;
         }
 
         $autoProcessedEmailData->setProcessLog('no_action_taken', true);
