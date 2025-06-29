@@ -160,7 +160,7 @@ class AutoProcessedEmailData extends Data
     {
         return $this->intents;
     }
-    
+
     public function setNeverSubscribed(bool $neverSubscribed): void
     {
         $this->never_subscribed = $neverSubscribed;
