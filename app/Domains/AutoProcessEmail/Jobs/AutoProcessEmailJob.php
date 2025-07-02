@@ -230,11 +230,16 @@ abstract class AutoProcessEmailJob implements ShouldBeUnique, ShouldQueue
                 ]);
             }
 
+            $unsubscribedMobileNumbers = $autoProcessedEmailData->getUnsubscribedMobileNumbers();
+            $mobileNumbersWithInactiveSubscription = $autoProcessedEmailData->getMobileNumbersWithInactiveSubscription();
+
+            $unsubscribedMobileNumbersSafe = empty($unsubscribedMobileNumbers) ? $mobileNumbersWithInactiveSubscription : $unsubscribedMobileNumbers;
+
             $content = View::make($autoProcessedEmailData->response_template_path, [
                 'BRAND_NAME' => $this->autoProcessableEmailData->brand_name,
-                'MOBILE_NUMBER' => ! empty($autoProcessedEmailData->getUnsubscribedMobileNumbers())
-                    ? implode(',', $autoProcessedEmailData->getUnsubscribedMobileNumbers())
-                    : 'MSISDN',
+                'MOBILE_NUMBER' => ! empty($unsubscribedMobileNumbersSafe)
+                    ? implode(',', $unsubscribedMobileNumbersSafe)
+                    : '',
                 'SENDER_EMAIL_PREVIEW' => $this->getSenderEmailPreview(),
             ])->render();
             $outgoingEmailQuery->email_content = $content;
