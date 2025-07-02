@@ -22,7 +22,7 @@
                                 MyGym Club to jednorazowa usługa w cenie 30,75 zł (30 dni nieograniczonego dostępu).
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                Na podstawie naszych danych wydaje się, że numer <strong>{{ $MOBILE_NUMBER ?? 'XXXXXX' }}</strong> nigdy nie był subskrybowany w naszej usłudze. W związku z tym z tym numerem nie powiązano żadnych opłat.
+                                Na podstawie naszych danych wydaje się, że numer <strong>{{ $MOBILE_NUMBER ?? '' }}</strong> nigdy nie był subskrybowany w naszej usłudze. W związku z tym z tym numerem nie powiązano żadnych opłat.
                             </p>
                             <p style="color: #555; font-size: 16px;">
                                 Jeśli jednak masz dowody lub jakąkolwiek dokumentację pomocniczą, która przeczy temu stwierdzeniu, uprzejmie prosimy o dostarczenie nam dowodu opłaty. Umożliwi nam to przeprowadzenie dokładnego dochodzenia i odpowiednie zajęcie się sprawą.
