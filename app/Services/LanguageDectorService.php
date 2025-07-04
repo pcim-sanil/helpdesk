@@ -32,6 +32,8 @@ class LanguageDectorService
 
     public const SLOVAK_LANGUAGE = 'sk';
 
+    public const SLOVENIAN_LANGUAGE = 'sl';
+
     /**
      * Detect the language of the text.
      *
