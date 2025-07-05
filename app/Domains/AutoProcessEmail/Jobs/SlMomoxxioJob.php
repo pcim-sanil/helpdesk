@@ -46,19 +46,19 @@ class SlMomoxxioJob extends AutoProcessEmailJob
                     return 'mail.sl.468.mobile-number-not-found';
                 }
 
-                return 'mail.en.mobile-number-not-found';
+                return 'mail.en.468.mobile-number-not-found';
             case AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND:
                 if (in_array($language, [LanguageDectorService::SLOVENIAN_LANGUAGE])) {
                     return 'mail.sl.468.subscription-not-found';
                 }
 
-                return 'mail.en.subscription-not-found';
+                return 'mail.en.468.subscription-not-found';
             case AutoProcessResponseTypeEnum::UNSUBSCRIBED:
                 if (in_array($language, [LanguageDectorService::SLOVENIAN_LANGUAGE])) {
                     return 'mail.sl.468.unsubscribed';
                 }
 
-                return 'mail.en.unsubscribed';
+                return 'mail.en.468.unsubscribed';
             case AutoProcessResponseTypeEnum::REFUND_REQUESTED:
                 if (in_array($language, [LanguageDectorService::SLOVENIAN_LANGUAGE])) {
                     return 'mail.sl.468.refund-request';
