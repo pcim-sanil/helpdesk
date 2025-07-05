@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Refund Request</title>
+    <title>Mobile Number Not Found</title>
 </head>
 <body style="background-color: #f6f6f6; font-family: Arial, sans-serif; margin: 0; padding: 0;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f6f6f6; padding: 30px 0;">
@@ -16,10 +16,19 @@
                                 Thank you for contacting us. We are pleased to provide you with a clear overview of your subscription and assist you with any questions.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                MyGym Club is a one-time video streaming service that offers 30 days of unlimited access to high-quality workouts, expert training tips, energizing music, healthy recipes, and helpful fitness guides — all for a one-time fee of 30.75 PLN.
+                                MyGym Club is a video streaming service offering the best workouts, training tips, energizing music, healthy recipes, and fitness guides.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                We have received your request and our team is currently reviewing it. We will inform you about the resolution as soon as possible.
+                                MyGym Club is a one-time service priced at 30.75 PLN (30 days of unlimited access).
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                To proceed with unsubscribing you from our service, we kindly request you to provide us with the phone number you wish to unsubscribe, including the appropriate country code.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                We appreciate your cooperation in this matter and assure you that we will handle your request promptly and efficiently.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                Thank you for your continued support.
                             </p>
                             <p style="margin-top: 32px; color: #888; font-size: 15px;">
                                 Best regards,<br>
