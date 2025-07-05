@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Refund Request</title>
+    <title>Unsubscribed Confirmation</title>
 </head>
 <body style="background-color: #f6f6f6; font-family: Arial, sans-serif; margin: 0; padding: 0;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f6f6f6; padding: 30px 0;">
@@ -11,7 +11,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 32px;">
                     <tr>
                         <td>
-                            <h2 style="color: #333; margin-top: 0;">Dear Customer,</h2>
+                            <h2 style="color: #333; margin-top: 0;">Hello,</h2>
                             <p style="color: #555; font-size: 16px;">
                                 Thank you for contacting us. We are happy to provide you with a clear overview of your subscription and assist you with any questions.
                             </p>
@@ -20,10 +20,13 @@
                                 <br/>Whether you want to increase endurance, build strength, or enhance flexibility, our content is here to guide you. The service costs 30.75 PLN and does not auto-renew — no cancellation is required.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                We have received your request, and our team is currently reviewing it. We will inform you about the resolution as soon as possible.
+                                We would like to inform you that the number <strong>{{ $MOBILE_NUMBER ?? '' }}</strong> has been unsubscribed from our service from <strong>{{ $BRAND_NAME ?? '' }}</strong>.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                We have made every effort to provide you with the appropriate information in this matter.
                             </p>
                             <p style="margin-top: 32px; color: #888; font-size: 15px;">
-                                Best regards,<br>
+                                With best regards,<br>
                                 <span style="color: #333;">Support | Customer Service</span>
                             </p>
                         </td>

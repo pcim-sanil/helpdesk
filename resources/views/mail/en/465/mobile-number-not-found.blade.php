@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Refund Request</title>
+    <title>Mobile Number Not Found</title>
 </head>
 <body style="background-color: #f6f6f6; font-family: Arial, sans-serif; margin: 0; padding: 0;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f6f6f6; padding: 30px 0;">
@@ -13,18 +13,26 @@
                         <td>
                             <h2 style="color: #333; margin-top: 0;">Dear Customer,</h2>
                             <p style="color: #555; font-size: 16px;">
-                                Thank you for contacting us. We are happy to provide you with a clear overview of your subscription and assist you with any questions you may have.
+                                Thank you for contacting us. We are pleased to provide you with a clear overview of your subscription and assist you with any questions.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                Momoxxio is an innovative mobile content service that provides you access to a wide range of entertaining and interesting content, including news, games, e-books, music, horoscopes, and more. 
-                                <br/>Enjoy the latest updates directly on your phone and have fun anytime, anywhere – for just 4.98 EUR per week. If you wish to unsubscribe, simply send STOP MOMO to 6060 (available for Telekom, A1, and Telemach users).
+                                MyGym Club is a video streaming service offering the best workouts, training tips, energizing music, healthy recipes, and fitness guides.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                We have received your request and our team is currently reviewing it. We will notify you about the resolution as soon as possible.
+                                MyGym Club is a one-time service priced at 30.75 PLN (30 days of unlimited access).
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                To proceed with unsubscribing you from our service, we kindly request you to provide us with the phone number you wish to unsubscribe, including the appropriate country code.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                We appreciate your cooperation in this matter and assure you that we will handle your request promptly and efficiently.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                Thank you for your continued support.
                             </p>
                             <p style="margin-top: 32px; color: #888; font-size: 15px;">
                                 Best regards,<br>
-                                <span style="color: #333;">Support | Customer Care</span>
+                                <span style="color: #333;">Help | Customer Support</span>
                             </p>
                         </td>
                     </tr>

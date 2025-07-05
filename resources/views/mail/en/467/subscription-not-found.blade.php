@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Refund Request</title>
+    <title>Active Subscription Not Found</title>
 </head>
 <body style="background-color: #f6f6f6; font-family: Arial, sans-serif; margin: 0; padding: 0;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f6f6f6; padding: 30px 0;">
@@ -20,7 +20,19 @@
                                 <br/>Whether you want to increase endurance, build strength, or enhance flexibility, our content is here to guide you. The service costs 30.75 PLN and does not auto-renew — no cancellation is required.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                We have received your request, and our team is currently reviewing it. We will inform you about the resolution as soon as possible.
+                                Based on our records, it appears that the number <strong>{{ $MOBILE_NUMBER ?? '' }}</strong> has never been subscribed to our service. Therefore, no charges have been associated with this number.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                However, if you have evidence or any supporting documentation that contradicts this statement, we kindly request you to provide us with proof of payment. This will enable us to conduct a thorough investigation and address the matter appropriately.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                Please be assured that we have made every effort to provide you with the necessary information and ensure transparency throughout the process.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                If you have any questions or need additional assistance, please don't hesitate to contact our dedicated customer support team.
+                            </p>
+                            <p style="color: #555; font-size: 16px;">
+                                Thank you for your understanding and cooperation.
                             </p>
                             <p style="margin-top: 32px; color: #888; font-size: 15px;">
                                 Best regards,<br>

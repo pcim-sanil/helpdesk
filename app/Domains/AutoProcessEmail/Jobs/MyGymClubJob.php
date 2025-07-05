@@ -46,19 +46,19 @@ class MyGymClubJob extends AutoProcessEmailJob
                     return 'mail.pl.465.mobile-number-not-found';
                 }
 
-                return 'mail.en.mobile-number-not-found';
+                return 'mail.en.465.mobile-number-not-found';
             case AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND:
                 if (in_array($language, [LanguageDectorService::POLISH_LANGUAGE])) {
                     return 'mail.pl.465.subscription-not-found';
                 }
 
-                return 'mail.en.subscription-not-found';
+                return 'mail.en.465.subscription-not-found';
             case AutoProcessResponseTypeEnum::UNSUBSCRIBED:
                 if (in_array($language, [LanguageDectorService::POLISH_LANGUAGE])) {
                     return 'mail.pl.465.unsubscribed';
                 }
 
-                return 'mail.en.unsubscribed';
+                return 'mail.en.465.unsubscribed';
             case AutoProcessResponseTypeEnum::REFUND_REQUESTED:
                 if (in_array($language, [LanguageDectorService::POLISH_LANGUAGE])) {
                     return 'mail.pl.465.refund-request';

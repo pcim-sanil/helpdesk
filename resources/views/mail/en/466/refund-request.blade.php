@@ -13,15 +13,16 @@
                         <td>
                             <h2 style="color: #333; margin-top: 0;">Dear Customer,</h2>
                             <p style="color: #555; font-size: 16px;">
-                                Thank you for reaching out to us. We are happy to provide you with an overview of your subscription and assist you with any questions you may have.
-                                Pixipals is a fun and user-friendly gaming platform that offers unlimited access to more than 90 exciting HTML5 games – no downloads or installations required. Subscribers can enjoy the content anytime and anywhere, completely ad-free, for just 4 EUR/week. You can unsubscribe at any time via https://p.pixipals.com/sk/un/ or by emailing sk@pixipals.com, including the mobile number you wish to unsubscribe from.
+                                Thank you for contacting us. We are happy to provide you with an overview of your subscription and help you with any questions you may have.
+                                <br/>Pixipals is a fun and user-friendly gaming platform that offers unlimited access to more than 90 exciting HTML5 games - no downloads or installations required. 
+                                <br/>Subscribers can enjoy the content anytime and anywhere, completely ad-free, for just 4 EUR/week. You can cancel your subscription at any time through https://p.pixipals.com/sk/un/ or by email at sk@pixipals.com, including the mobile number you wish to unsubscribe.
                             </p>
                             <p style="color: #555; font-size: 16px;">
-                                We have received your request and our team is currently reviewing it. We will inform you of the resolution as soon as possible.
+                                We have received your request and our team is currently reviewing it. We will inform you about the resolution as soon as possible.
                             </p>
                             <p style="margin-top: 32px; color: #888; font-size: 15px;">
-                                Kind regards,<br>
-                                <span style="color: #333;">Support | Customer Care</span>
+                                Best regards,<br>
+                                <span style="color: #333;">Support | Customer Service</span>
                             </p>
                         </td>
                     </tr>
