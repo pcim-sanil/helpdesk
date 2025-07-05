@@ -47,19 +47,19 @@ class SkPixipalsJob extends AutoProcessEmailJob
                     return 'mail.sk.466.mobile-number-not-found';
                 }
 
-                return 'mail.en.mobile-number-not-found';
+                return 'mail.en.466.mobile-number-not-found';
             case AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND:
                 if (in_array($language, [LanguageDectorService::SLOVAK_LANGUAGE])) {
                     return 'mail.sk.466.subscription-not-found';
                 }
 
-                return 'mail.en.subscription-not-found';
+                return 'mail.en.466.subscription-not-found';
             case AutoProcessResponseTypeEnum::UNSUBSCRIBED:
                 if (in_array($language, [LanguageDectorService::SLOVAK_LANGUAGE])) {
                     return 'mail.sk.466.unsubscribed';
                 }
 
-                return 'mail.en.unsubscribed';
+                return 'mail.en.466.unsubscribed';
             case AutoProcessResponseTypeEnum::REFUND_REQUESTED:
                 if (in_array($language, [LanguageDectorService::SLOVAK_LANGUAGE])) {
                     return 'mail.sk.466.refund-request';
