@@ -122,6 +122,9 @@ class ZedPtyLtdJob extends AutoProcessEmailJob
         $mobileNumbersWithActiveSubscription = $autoProcessedEmailData->getMobileNumbersWithActiveSubscription();
         $neverSubscribed = $autoProcessedEmailData->getNeverSubscribed();
 
+
+                dd([$autoProcessedEmailData]);
+
         if ($neverSubscribed) {
             $autoProcessedEmailData->setResponseType(AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND);
             $autoProcessedEmailData->setResponseTemplatePath($this->getEmailTemplate(AutoProcessResponseTypeEnum::SUBSCRIPTION_NOT_FOUND, $language));

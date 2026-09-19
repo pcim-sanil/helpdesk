@@ -6,6 +6,7 @@ use App\Domains\AutoProcessEmail\Data\AutoProcessedEmailData;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 trait ZedPtyLtdTrait
 {
@@ -92,7 +93,15 @@ trait ZedPtyLtdTrait
 
         $end = $sub['EndDate']['When'] ?? '';
 
-        return $end === '' || $end === null;
+        if ($end === '' || $end === null) {
+            return true;
+        }
+
+        try {
+            return Carbon::parse($end)->isFuture();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
