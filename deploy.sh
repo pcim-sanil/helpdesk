@@ -1,90 +1,156 @@
+
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 IFS=$'\n\t'
 
-# -----------------------------------------------------------------------------
-# CONFIGURATION (override via environment if you like)
-# -----------------------------------------------------------------------------
+# --------------------------------------------------
+# CONFIGURATION
+# --------------------------------------------------
+
 DEPLOY_USER="${DEPLOY_USER:-$(whoami)}"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 GIT_REMOTE="${GIT_REMOTE:-origin}"
 GIT_BRANCH="${GIT_BRANCH:-master}"
-SUPERVISOR_PROCESSES="${SUPERVISOR_PROCESSES:-laravel-queue:*}"
 
-# -----------------------------------------------------------------------------
-# NAVIGATE TO PROJECT
-# -----------------------------------------------------------------------------
+PHP_BIN="/usr/bin/php8.4"
+COMPOSER_BIN="composer"
+
+PHP_FPM_SERVICE="php8.4-fpm"
+WEB_USER="www-data"
+WEB_GROUP="www-data"
+
+PM2_CONFIG="ecosystem.config.cjs"
+PM2_PROCESS="laravel-queue"
+
+# --------------------------------------------------
+# ERROR HANDLING
+# --------------------------------------------------
+
+trap 'echo "ERROR: Deployment failed at line $LINENO"; exit 1' ERR
+
 cd "$PROJECT_ROOT"
 
-# -----------------------------------------------------------------------------
-# GIT CREDENTIALS: build a temporary git‐askpass helper
-# -----------------------------------------------------------------------------
-ASKPASS_SCRIPT="$(mktemp)"
-cat << 'EOF' > "$ASKPASS_SCRIPT"
-#!/usr/bin/env bash
-# this file must be chmod 700
-cat ~/bitbucket.txt
-EOF
-chmod 700 "$ASKPASS_SCRIPT"
-export GIT_ASKPASS="$ASKPASS_SCRIPT"
+echo "======================================"
+echo " Laravel Production Deployment"
+echo "======================================"
 
-# -----------------------------------------------------------------------------
-# FETCH & RESET TO REMOTE
-# -----------------------------------------------------------------------------
-echo "→ Fetching latest from $GIT_REMOTE/$GIT_BRANCH…"
+echo "Project: $PROJECT_ROOT"
+echo "User: $DEPLOY_USER"
+echo "Branch: $GIT_BRANCH"
+
+# --------------------------------------------------
+# CHECK REQUIREMENTS
+# --------------------------------------------------
+
+command -v git >/dev/null
+command -v "$PHP_BIN" >/dev/null
+command -v "$COMPOSER_BIN" >/dev/null
+
+# --------------------------------------------------
+# GIT UPDATE
+# --------------------------------------------------
+
+echo "Fetching latest code..."
+
 git fetch --prune "$GIT_REMOTE"
+
 git checkout "$GIT_BRANCH"
+
 git reset --hard "$GIT_REMOTE/$GIT_BRANCH"
 
-# cleanup askpass helper
-unset GIT_ASKPASS
-rm -f "$ASKPASS_SCRIPT"
+# --------------------------------------------------
+# COMPOSER DEPENDENCIES
+# --------------------------------------------------
 
-# -----------------------------------------------------------------------------
-# DEPENDENCIES & MIGRATIONS
-# -----------------------------------------------------------------------------
-echo "→ Installing PHP dependencies…"
-composer install --no-interaction --prefer-dist --optimize-autoloader
+echo "Installing Composer dependencies..."
 
-echo "→ Clearing config, routes & views…"
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
+"$COMPOSER_BIN" install \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-dev
 
-echo "→ Caching config, routes & views…"
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# --------------------------------------------------
+# FRONTEND BUILD
+# --------------------------------------------------
 
-echo "→ Running database migrations…"
-php artisan migrate --force
-
-# -----------------------------------------------------------------------------
-# FRONT-END ASSETS (if present)
-# -----------------------------------------------------------------------------
 if [ -f package.json ]; then
-  echo "→ Building front-end assets…"
-  npm ci
-  npm run build
+
+    echo "Building frontend assets..."
+
+    npm ci
+    npm run build
+
 fi
 
-# -----------------------------------------------------------------------------
-# RESTART QUEUE WORKERS
-# -----------------------------------------------------------------------------
-echo "→ Restarting queue workers ($SUPERVISOR_PROCESSES)…"
-#sudo supervisorctl restart "$SUPERVISOR_PROCESSES"
-sudo pm2 reload ecosystem.config.cjs --only laravel-queue
-sudo pm2 save
+# --------------------------------------------------
+# LARAVEL CACHE
+# --------------------------------------------------
 
+echo "Clearing Laravel caches..."
 
+"$PHP_BIN" artisan optimize:clear
 
-# -----------------------------------------------------------------------------
+# --------------------------------------------------
+# DATABASE MIGRATIONS
+# --------------------------------------------------
+
+echo "Running database migrations..."
+
+"$PHP_BIN" artisan migrate --force
+
+# --------------------------------------------------
 # FILE PERMISSIONS
-# -----------------------------------------------------------------------------
-echo "→ Fixing storage & cache permissions…"
-sudo chown -R "$DEPLOY_USER":nginx \
-  "$PROJECT_ROOT"/storage "$PROJECT_ROOT"/bootstrap/cache
-sudo chmod -R 775 \
-  "$PROJECT_ROOT"/storage "$PROJECT_ROOT"/bootstrap/cache
+# --------------------------------------------------
 
-echo "✅ Deployment completed successfully."
+echo "Setting Laravel permissions..."
+
+sudo chown -R "$DEPLOY_USER:$WEB_GROUP" \
+    "$PROJECT_ROOT/storage" \
+    "$PROJECT_ROOT/bootstrap/cache"
+
+sudo chmod -R 775 \
+    "$PROJECT_ROOT/storage" \
+    "$PROJECT_ROOT/bootstrap/cache"
+
+# --------------------------------------------------
+# REBUILD LARAVEL CACHE
+# --------------------------------------------------
+
+echo "Rebuilding Laravel caches..."
+
+"$PHP_BIN" artisan config:cache
+"$PHP_BIN" artisan route:cache
+"$PHP_BIN" artisan view:cache
+
+# --------------------------------------------------
+# RELOAD PHP-FPM
+# --------------------------------------------------
+
+echo "Reloading PHP-FPM..."
+
+sudo systemctl reload "$PHP_FPM_SERVICE"
+
+# --------------------------------------------------
+# RESTART QUEUE WORKERS
+# --------------------------------------------------
+
+echo "Restarting Laravel queue workers..."
+
+"$PHP_BIN" artisan queue:restart
+
+if command -v pm2 >/dev/null && [ -f "$PM2_CONFIG" ]; then
+
+    pm2 reload "$PM2_CONFIG" --only "$PM2_PROCESS"
+    pm2 save
+
+fi
+
+# --------------------------------------------------
+# COMPLETE
+# --------------------------------------------------
+
+echo "======================================"
+echo " Deployment completed successfully!"
+echo "======================================"
